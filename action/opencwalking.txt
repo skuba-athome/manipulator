@@ -1,0 +1,5 @@
+pan_kinect,0/tilt_kinect,-0.87
+joint1,1.57/joint3,-1.57/gripper,0.5
+joint2,-1.57
+mark43_3,0
+mark43_1,-1.69/mark43_2,3.43

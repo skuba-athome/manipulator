@@ -1,0 +1,4 @@
+joint1,1.57/joint3,-1.57/gripper,0.5
+joint2,-1
+mark43_3,0
+mark43_1,-2.61/mark43_2,2.13
