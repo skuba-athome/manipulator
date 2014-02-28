@@ -6,7 +6,8 @@ def invKinematic(x,y,z):
 	a = sqrt((x*x)+(y*y))
 	b = 0.12
 	x_1 = degrees(acos(b/a))
-	if(abs(y) < 0.000001):
+	print x_1
+	if(abs(y) < 0.01):
 		theta_1 = 90 - x_1
 	else:
 		x_2 = degrees(atan(abs(x)/abs(y)))
@@ -18,13 +19,15 @@ def invKinematic(x,y,z):
 	x_1 = sin(radians(theta_1))*0.12
 	y_1 = cos(radians(theta_1))*0.12*-1
 	d = sqrt((x_1-x)**2+(y_1-y)**2+z**2)
+	print 'Radius',d,x_1,x_1-x,y_1,y_1-y
         if(abs(z) < 0.00001):
-        	offset = 0
+        	offset = 90
 	else:
         	offset = -1*degrees(atan(sqrt((x_1-x)**2+(y_1-y)**2)/z))
         r = 0.4
 	R = 0.35
 	x_2 = (d*d-r*r+R*R)/(2*d)
+	print '---->',x_2,R
 	print x_2,offset,degrees(acos(x_2/R))
 	theta_2 = offset - degrees(acos(x_2/R))  
 	print 'Theta 2 :',theta_2
@@ -45,4 +48,8 @@ if __name__ == "__main__":
 	invKinematic(0.4,-0.12,-0.35)
 	print "--"
 	invKinematic(0.749999,-0.12,0)
+	print "--"
+	invKinematic(0.05,0.36,0.66)
+	print "--"
+	invKinematic(0.733218442309,-0.192329706124,-0.0967466984613)
 	print "--"

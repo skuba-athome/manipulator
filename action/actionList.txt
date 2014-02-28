@@ -18,3 +18,10 @@ dropbar
 drophallwaytable
 dropsidetable
 dropstove
+testt
+revertTestt
+setNeck
+normal_for_get
+bye
+normal_for_drop
+walking_for_drop
