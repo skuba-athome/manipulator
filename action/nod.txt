@@ -3,16 +3,4 @@ tilt_kinect,-0.7
 tilt_kinect,0
 tilt_kinect,-0.7
 tilt_kinect,0
-tilt_kinect,-0.7
-tilt_kinect,0
-tilt_kinect,-0.7
-tilt_kinect,0
-tilt_kinect,-0.7
-tilt_kinect,0
-tilt_kinect,-0.7
-tilt_kinect,0
-tilt_kinect,-0.7
-tilt_kinect,0
-tilt_kinect,-0.7
-tilt_kinect,0
 pan_kinect,0
