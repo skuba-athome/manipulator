@@ -3,3 +3,7 @@ syntax: glob
 *~
 *.pyc
 *.swp
+bin
+build
+srv_gen
+src/manipulator
