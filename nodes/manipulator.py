@@ -16,6 +16,7 @@ from dynamixel_msgs.msg import JointState
 from diagnostic_msgs.msg import DiagnosticArray
 from dynamixel_controllers.srv import SetSpeed
 from dynamixel_controllers.srv import SetTorqueLimit
+from manipulator.srv import *
 
 import tf
 
@@ -247,7 +248,7 @@ def main():
     pub['gripper'] = rospy.Publisher('/gripper/command', Float64)
 
     pub['is_fin'] = rospy.Publisher('/manipulator/is_fin', String)
-    rospy.init_node('inverse_kine')
+    rospy.init_node('manipulator')
 
     rospy.Subscriber("/manipulator/action", String, init_movement)
     rospy.Subscriber("/manipulator/object_point", Vector3, init_point)
@@ -255,10 +256,19 @@ def main():
     rospy.Subscriber("/manipulator/object_point_split_top", Vector3, init_point_split_top)
     rospy.Subscriber("/diagnostics", DiagnosticArray, diag)
 
+    rospy.Service("isManipulable", isManipulable, isManipulableHandle)
+
     tf_listener = tf.TransformListener()
 
     rospy.loginfo('Manipulator Start')
     rospy.spin()
+
+def isManipulableHandle(req):
+    try:
+        theta = invKinematic(req.x, req.y, req.z)
+        return isManipulableResponse(True)
+    except:
+	return isManipulableResponse(False)
 
 if __name__ == '__main__':
     try:
