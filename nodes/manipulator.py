@@ -6,6 +6,7 @@ import math
 
 from inverseKinematic import invKinematic
 from geometry_msgs.msg import Vector3
+
 roslib.load_manifest('manipulator')
 roslib.load_manifest('dynamixel_controllers')
 
