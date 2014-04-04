@@ -7,3 +7,4 @@ bin
 build
 srv_gen
 src/manipulator
+.idea
