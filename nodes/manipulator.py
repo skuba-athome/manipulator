@@ -85,16 +85,12 @@ def init_point(data):
     #x,y,z = data.x,data.y,data.z
     z += 0.1
     y -= 0.1
-    print
-    "DataAfter Trans:" + str((x, y, z, trans))
+    print "DataAfter Trans:" + str((x, y, z, trans))
 
     theta = invKinematic(x, y, z)
-    print
-    'invkine : ', x, y, z
-    print
-    theta
-    actionList['object_point'].append('mark43_1,' + str(math.radians(-theta[0] + theta[1]) * 2) + '/mark43_2,' + str(
-        math.radians(theta[0] + theta[1]) * 2))
+    print 'invkine : ', x, y, z
+    print theta
+    actionList['object_point'].append('mark43_1,' + str(math.radians(-theta[0] + theta[1]) * 2) + '/mark43_2,' + str(math.radians(theta[0] + theta[1]) * 2))
     actionList['object_point'].append('mark43_3,' + str(math.radians(theta[2])))
 
     actionList['object_point'].append('gripper,-1.38')
@@ -130,14 +126,12 @@ def init_point_split(data):
     z += 0.04
     y -= 0.06
     # extend
-    print
-    '####', 'x', x, 'y', y, 'z', z
+    print '####', 'x', x, 'y', y, 'z', z
     dist = math.sqrt(x * x + y * y)
     zeeta = math.atan(y / x)
-    print
-    "##################### last step : ", dist * math.cos(zeeta), dist * math.sin(zeeta), z
-    print
-    '#####', 'dist', dist, 'zeeta', zeeta
+    print "##################### last step : ", dist * math.cos(zeeta), dist * math.sin(zeeta), z
+    print '#####', 'dist', dist, 'zeeta', zeeta
+
     try:
         theta0 = invKinematic((dist) * math.cos(zeeta), (dist) * math.sin(zeeta), z)
         actionList['object_point'].append(
@@ -145,28 +139,22 @@ def init_point_split(data):
         x_2 = 0.11 * math.sin(math.radians(theta0[0]))
         y_2 = 0.11 * math.cos(math.radians(theta0[0]))
         dist_true = math.sqrt(dist * dist - 0.11 * 0.11)
-        print
-        '#####', 'theta0', theta0[0]
-        print
-        "#####", 'x_2', x_2, 'y_2', y_2
-        print
-        '#####', 'dist_true', dist_true
+        print '#####', 'theta0', theta0[0]
+        print "#####", 'x_2', x_2, 'y_2', y_2
+        print '#####', 'dist_true', dist_true
         #for i in frange(0.45, dist+0.04, 0.05):
         for i in frange(0.45, dist_true + 0.04, 0.05):
             #theta = invKinematic(i*math.cos(zeeta),i*math.sin(zeeta),z)
             #print 'step',i,':',i*math.cos(zeeta),i*math.sin(zeeta),z
             theta = invKinematic(i * math.cos(math.radians(theta0[0])) + x_2,
                                  i * math.sin(math.radians(theta0[0])) - y_2, z)
-            print
-            '######', 'step', i, ':', i * math.cos(math.radians(theta0[0])) + x_2, i * math.sin(
+            print '######', 'step', i, ':', i * math.cos(math.radians(theta0[0])) + x_2, i * math.sin(
                 math.radians(theta0[0])) - y_2, z
             #print theta
             actionList['object_point'].append('joint3,' + str(-3.67 - math.radians(theta[3])))
             actionList['object_point'].append('gripper,-0.1')
             #actionList['object_point'].append('mark43_1,'+str(math.radians(-theta[0]+theta[1])*2)+'/mark43_2,'+str(math.radians(theta[0]+theta[1])*2)+'/mark43_3,'+str(math.radians(theta[2])))
-            actionList['object_point'].append(
-                'mark43_1,' + str(math.radians(-theta0[0] + theta[1]) * 2) + '/mark43_2,' + str(
-                    math.radians(theta0[0] + theta[1]) * 2) + '/mark43_3,' + str(math.radians(theta[2])))
+            actionList['object_point'].append('mark43_1,' + str(math.radians(-theta0[0] + theta[1]) * 2) + '/mark43_2,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark43_3,' + str(math.radians(theta[2])))
 
         actionList['object_point'].append('gripper,-1.38')
         actionList['object_point'] = actionList['object_point'] + actionList['pullback']
@@ -189,8 +177,7 @@ def init_point_split_top(data):
     y -= 0.01
     # extend
     src = z + 0.1
-    print
-    src, z
+    print src, z
 
     delay = Delay()
     publish = Publish()
@@ -202,13 +189,9 @@ def init_point_split_top(data):
     try:
         for i in frange(src, z, -0.01):
             theta = invKinematic(x, y, i)
-            print
-            'step', i, ':', x, y, i
-            print
-            theta
-            actionList['object_point'].append(
-                'mark43_1,' + str(math.radians(-theta[0] + theta[1]) * 2) + '/mark43_2,' + str(
-                    math.radians(theta[0] + theta[1]) * 2) + '/mark43_3,' + str(math.radians(theta[2])))
+            print 'step', i, ':', x, y, i
+            print theta
+            actionList['object_point'].append('mark43_1,' + str(math.radians(-theta[0] + theta[1]) * 2) + '/mark43_2,' + str(math.radians(theta[0] + theta[1]) * 2) + '/mark43_3,' + str(math.radians(theta[2])))
 
         actionList['object_point'].append('gripper,-1.38')
         actionList['object_point'] = actionList['object_point'] + actionList['pullback']
