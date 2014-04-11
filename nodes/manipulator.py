@@ -27,7 +27,7 @@ pub = {}
 packagePath = roslib.packages.get_pkg_dir('manipulator')
 
 actionList = {}
-dynamixel = {10: 'pan_kinect', 11: 'tilt_kinect', 21: 'mark43_1', 22: 'mark43_2', 25: 'mark43_3', 40: 'joint1',
+dynamixel = {10: 'pan_kinect', 11: 'tilt_kinect', 21: 'mark44_1', 22: 'mark44_2', 25: 'mark44_3', 40: 'joint1',
              41: 'joint2', 42: 'joint3', 43: 'gripper'}
 
 tf_listener = []
@@ -90,8 +90,8 @@ def init_point(data):
     theta = invKinematic(x, y, z)
     print 'invkine : ', x, y, z
     print theta
-    actionList['object_point'].append('mark43_1,' + str(math.radians(-theta[0] + theta[1]) * 2) + '/mark43_2,' + str(math.radians(theta[0] + theta[1]) * 2))
-    actionList['object_point'].append('mark43_3,' + str(math.radians(theta[2])))
+    actionList['object_point'].append('mark44_1,' + str(math.radians(-theta[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(theta[0] + theta[1]) * 2))
+    actionList['object_point'].append('mark44_3,' + str(math.radians(theta[2])))
 
     actionList['object_point'].append('gripper,-1.38')
     actionList['object_point'] = actionList['object_point'] + actionList['pullback']
@@ -107,7 +107,7 @@ def init_point_split(data):
     #	actionList['object_point'].append('mark43_1,1.02/mark43_2,1.02/mark43_3,0')
     #	actionList['object_point'].append('joint1,0/joint2,0/joint3,0/gripper,-0.1')
     actionList['object_point'] = actionList['object_point'] + actionList['normal_for_get']
-    actionList['object_point'].append('mark43_3,0')
+    actionList['object_point'].append('mark44_3,0')
 
     # format : x,y,z
     #x,y,z = data.x,data.y,data.z
@@ -135,7 +135,7 @@ def init_point_split(data):
     try:
         theta0 = invKinematic((dist) * math.cos(zeeta), (dist) * math.sin(zeeta), z)
         actionList['object_point'].append(
-            'mark43_1,' + str(math.radians(-theta0[0]) * 2) + '/mark43_2,' + str(math.radians(theta0[0]) * 2))
+            'mark44_1,' + str(math.radians(-theta0[0]) * 2) + '/mark44_2,' + str(math.radians(theta0[0]) * 2))
         x_2 = 0.11 * math.sin(math.radians(theta0[0]))
         y_2 = 0.11 * math.cos(math.radians(theta0[0]))
         dist_true = math.sqrt(dist * dist - 0.11 * 0.11)
@@ -154,7 +154,7 @@ def init_point_split(data):
             actionList['object_point'].append('joint3,' + str(-3.67 - math.radians(theta[3])))
             actionList['object_point'].append('gripper,-0.1')
             #actionList['object_point'].append('mark43_1,'+str(math.radians(-theta[0]+theta[1])*2)+'/mark43_2,'+str(math.radians(theta[0]+theta[1])*2)+'/mark43_3,'+str(math.radians(theta[2])))
-            actionList['object_point'].append('mark43_1,' + str(math.radians(-theta0[0] + theta[1]) * 2) + '/mark43_2,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark43_3,' + str(math.radians(theta[2])))
+            actionList['object_point'].append('mark44_1,' + str(math.radians(-theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_3,' + str(math.radians(theta[2])))
 
         actionList['object_point'].append('gripper,-1.38')
         actionList['object_point'] = actionList['object_point'] + actionList['pullback']
@@ -169,7 +169,7 @@ def init_point_split_top(data):
     global pub
     actionList['object_point'] = []
     actionList['object_point'].append('joint1,1.57/joint3,-1.57/gripper,-1.38')
-    actionList['object_point'].append('mark43_1,1.57/mark43_2,1.57/mark43_3,0/joint2,-1.57')
+    actionList['object_point'].append('mark44_1,1.57/mark44_2,1.57/mark44_3,0/joint2,-1.57')
     actionList['object_point'].append('joint1,0/joint2,-1/joint3,-1.57/gripper,-0.1')
 
     # format : x,y,z
@@ -191,7 +191,7 @@ def init_point_split_top(data):
             theta = invKinematic(x, y, i)
             print 'step', i, ':', x, y, i
             print theta
-            actionList['object_point'].append('mark43_1,' + str(math.radians(-theta[0] + theta[1]) * 2) + '/mark43_2,' + str(math.radians(theta[0] + theta[1]) * 2) + '/mark43_3,' + str(math.radians(theta[2])))
+            actionList['object_point'].append('mark44_1,' + str(math.radians(-theta[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(theta[0] + theta[1]) * 2) + '/mark44_3,' + str(math.radians(theta[2])))
 
         actionList['object_point'].append('gripper,-1.38')
         actionList['object_point'] = actionList['object_point'] + actionList['pullback']
@@ -253,9 +253,9 @@ def main():
     global pub, tf_listener
     pub['pan_kinect'] = rospy.Publisher('/pan_kinect/command', Float64)
     pub['tilt_kinect'] = rospy.Publisher('/tilt_kinect/command', Float64)
-    pub['mark43_1'] = rospy.Publisher('/mark43_1/command', Float64)
-    pub['mark43_2'] = rospy.Publisher('/mark43_2/command', Float64)
-    pub['mark43_3'] = rospy.Publisher('/mark43_3/command', Float64)
+    pub['mark44_1'] = rospy.Publisher('/mark44_1/command', Float64)
+    pub['mark44_2'] = rospy.Publisher('/mark44_2/command', Float64)
+    pub['mark44_3'] = rospy.Publisher('/mark44_3/command', Float64)
     pub['joint1'] = rospy.Publisher('/joint1/command', Float64)
     pub['joint2'] = rospy.Publisher('/joint2/command', Float64)
     pub['joint3'] = rospy.Publisher('/joint3/command', Float64)
