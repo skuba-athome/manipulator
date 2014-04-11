@@ -1,6 +1,5 @@
 pan_kinect,0/tilt_kinect,0
-mark43_3,0.785
-mark43_3,0.785
-mark43_1,-2.41/mark43_2,2.03
+mark44_3,0.785
+mark44_1,-2.41/mark44_2,2.03
 pan_kinect,0/tilt_kinect,-0.87
 

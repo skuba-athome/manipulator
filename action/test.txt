@@ -1,3 +1,0 @@
-joint1,1.57/joint3,-1.57/gripper,0.5
-mark43_1,1.57/mark43_2,1.57/mark43_3,0/joint2,-1.57
-joint1,0/joint2,-1/joint3,-1.57/gripper,-1.4
