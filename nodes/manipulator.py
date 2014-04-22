@@ -27,7 +27,7 @@ pub = {}
 packagePath = roslib.packages.get_pkg_dir('manipulator')
 
 actionList = {}
-dynamixel = {10: 'pan_kinect', 11: 'tilt_kinect', 21: 'mark44_1', 22: 'mark44_2', 25: 'mark44_3', 40: 'joint1',
+dynamixel = {10: 'pan_kinect', 11: 'tilt_kinect', 21: 'mark44_1', 22: 'mark44_2', 23: 'mark44_3', 40: 'joint1',
              41: 'joint2', 42: 'joint3', 43: 'gripper'}
 
 tf_listener = []
@@ -71,8 +71,8 @@ def frange(start, end, step):
 def init_point(data):
     global pub
     actionList['object_point'] = []
-    actionList['object_point'].append('gripper,-1.38')
-    actionList['object_point'].append('gripper,-0.1')
+    actionList['object_point'].append('gripper,-0.4')
+    actionList['object_point'].append('gripper,0.5')
     #actionList['object_point'].append('gripper,0.5')
 
     # format : x,y,z
@@ -91,9 +91,9 @@ def init_point(data):
     print 'invkine : ', x, y, z
     print theta
     actionList['object_point'].append('mark44_1,' + str(math.radians(-theta[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(theta[0] + theta[1]) * 2))
-    actionList['object_point'].append('mark44_3,' + str(math.radians(theta[2])))
+    actionList['object_point'].append('mark44_3,' + str(math.radians(theta[2]) * -4))
 
-    actionList['object_point'].append('gripper,-1.38')
+    actionList['object_point'].append('gripper,-0.4')
     actionList['object_point'] = actionList['object_point'] + actionList['pullback']
     init_movement(String('object_point'))
 
@@ -107,7 +107,6 @@ def init_point_split(data):
     #	actionList['object_point'].append('mark43_1,1.02/mark43_2,1.02/mark43_3,0')
     #	actionList['object_point'].append('joint1,0/joint2,0/joint3,0/gripper,-0.1')
     actionList['object_point'] = actionList['object_point'] + actionList['normal_for_get']
-    actionList['object_point'].append('mark44_3,0')
 
     # format : x,y,z
     #x,y,z = data.x,data.y,data.z
@@ -123,7 +122,7 @@ def init_point_split(data):
         return
 
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
-    z += 0.04
+    #z += 0.04
     y -= 0.06
     # extend
     print '####', 'x', x, 'y', y, 'z', z
@@ -135,7 +134,7 @@ def init_point_split(data):
     try:
         theta0 = invKinematic((dist) * math.cos(zeeta), (dist) * math.sin(zeeta), z)
         actionList['object_point'].append(
-            'mark44_1,' + str(math.radians(-theta0[0]) * 2) + '/mark44_2,' + str(math.radians(theta0[0]) * 2))
+            'mark44_1,' + str(math.radians(theta0[0]) * 2) + '/mark44_2,' + str(-math.radians(theta0[0]) * 2))
         x_2 = 0.11 * math.sin(math.radians(theta0[0]))
         y_2 = 0.11 * math.cos(math.radians(theta0[0]))
         dist_true = math.sqrt(dist * dist - 0.11 * 0.11)
@@ -143,7 +142,7 @@ def init_point_split(data):
         print "#####", 'x_2', x_2, 'y_2', y_2
         print '#####', 'dist_true', dist_true
         #for i in frange(0.45, dist+0.04, 0.05):
-        for i in frange(0.45, dist_true + 0.04, 0.05):
+        for i in frange(0.45, dist_true + 0.05, 0.05):
             #theta = invKinematic(i*math.cos(zeeta),i*math.sin(zeeta),z)
             #print 'step',i,':',i*math.cos(zeeta),i*math.sin(zeeta),z
             theta = invKinematic(i * math.cos(math.radians(theta0[0])) + x_2,
@@ -151,17 +150,18 @@ def init_point_split(data):
             print '######', 'step', i, ':', i * math.cos(math.radians(theta0[0])) + x_2, i * math.sin(
                 math.radians(theta0[0])) - y_2, z
             #print theta
-            actionList['object_point'].append('joint3,' + str(-3.67 - math.radians(theta[3])))
-            actionList['object_point'].append('gripper,-0.1')
+            actionList['object_point'].append('joint2,' + str(- math.radians(theta[3])))
+            actionList['object_point'].append('gripper,0.5')
             #actionList['object_point'].append('mark43_1,'+str(math.radians(-theta[0]+theta[1])*2)+'/mark43_2,'+str(math.radians(theta[0]+theta[1])*2)+'/mark43_3,'+str(math.radians(theta[2])))
-            actionList['object_point'].append('mark44_1,' + str(math.radians(-theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_3,' + str(math.radians(theta[2])))
+            actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(-theta0[0] + theta[1]) * 2) + '/mark44_3,' + str(math.radians(theta[2]) * -4))
+            #actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(-theta0[0] + theta[1]) * 2))
+            #actionList['object_point'].append('mark44_3,' + str(math.radians(theta[2]) * -4))
 
-        actionList['object_point'].append('gripper,-1.38')
+        actionList['object_point'].append('gripper,-0.4')
         actionList['object_point'] = actionList['object_point'] + actionList['pullback']
         init_movement(String('object_point'))
     except Exception, e:
-        print
-        str(e)
+        print str(e)
         pub['is_fin'].publish('error')
 
 
@@ -204,7 +204,8 @@ def init_movement(data):
     global actionstep, count
     actionname = data.data
     if (actionname in actionList):
-        count = -1
+        #count = -1
+        count = 0
         actionstep = actionList[actionname]
         rospy.loginfo('##### init action #####')
         rospy.loginfo('Action Name : ' + actionname)
@@ -223,21 +224,38 @@ def movement_step():
         motorID, value = motor.split(',')
         sendCommand(motorID, value)
 
+def check_goal(motor_id, current_pos):
+    global count
+    if (count >= len(actionstep)):
+        return
+    if (actionstep != {}):
+        for motor in actionstep[count].split('/'):
+            motorID, value = motor.split(',')
+            print motorID, ':', abs(current_pos - float(value))
+            if motorID in motor_id:
+                if abs(current_pos - float(value)) > 0.1:
+                    return True
+                else:
+                    return False
 
 def diag(data):
     global count
     all_moving = 0
     for i in data.status:
         if (i.name[:16] == 'Joint Controller'):
+            #if (i.hardware_id[19:21] in '21 22 23'):
+            #   print i.hardware_id[19:21],float(i.values[2].value)
+            #print i.values[5].value
             if (i.values[5].value == 'True'):
                 all_moving = 1
-            #print i.name,i.values[5].value
+            elif (i.hardware_id[19:21] in '21 22 23'):
+                if check_goal(dynamixel[int(i.hardware_id[19:21])],float(i.values[1].value)):
+                    all_moving = 1
         else:  #there are some not joint package from diagnostics
             return
     if (count > len(actionstep)):
         rospy.loginfo('Waiting for Action...')
         return
-    #print all_moving
     #rospy.loginfo('________')
     if (all_moving == 0):
         if (count == len(actionstep)):
