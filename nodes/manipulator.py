@@ -214,7 +214,6 @@ def init_movement(data):
     else:
         rospy.logerr('No action : ' + actionname)
 
-
 def movement_step():
     global count
     if (count == len(actionstep)):
@@ -281,7 +280,7 @@ def main():
 
     pub['is_fin'] = rospy.Publisher('/manipulator/is_fin', String)
     rospy.init_node('manipulator')
-
+    rospy.Subscriber("joy_cmd_manipulate", String, init_joy_cmd)
     rospy.Subscriber("/manipulator/action", String, init_movement)
     rospy.Subscriber("/manipulator/object_point", Vector3, init_point)
     rospy.Subscriber("/manipulator/object_point_split", Vector3, init_point_split)
@@ -295,6 +294,8 @@ def main():
     rospy.loginfo('Manipulator Start')
     rospy.spin()
 
+def init_joy_cmd(action)
+        init_movement(action)
 
 def is_manipulable_handle(req):
     print "in isManipulableHandle method" + str(req)
