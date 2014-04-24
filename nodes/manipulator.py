@@ -122,8 +122,9 @@ def init_point_split(data):
         return
 
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
-    #z += 0.04
-    y -= 0.06
+    x += 0.02
+    y -= 0.035
+    z -= 0.06
     # extend
     print '####', 'x', x, 'y', y, 'z', z
     dist = math.sqrt(x * x + y * y)
@@ -142,7 +143,7 @@ def init_point_split(data):
         print "#####", 'x_2', x_2, 'y_2', y_2
         print '#####', 'dist_true', dist_true
         #for i in frange(0.45, dist+0.04, 0.05):
-        for i in frange(0.45, dist_true + 0.05, 0.05):
+        for i in frange(0.45, dist_true, 0.05):
             #theta = invKinematic(i*math.cos(zeeta),i*math.sin(zeeta),z)
             #print 'step',i,':',i*math.cos(zeeta),i*math.sin(zeeta),z
             theta = invKinematic(i * math.cos(math.radians(theta0[0])) + x_2,
@@ -158,7 +159,8 @@ def init_point_split(data):
             #actionList['object_point'].append('mark44_3,' + str(math.radians(theta[2]) * -4))
 
         actionList['object_point'].append('gripper,-0.4')
-        actionList['object_point'] = actionList['object_point'] + actionList['pullback']
+        #actionList['object_point'] = actionList['object_point'] + actionList['pullback']
+        actionList['object_point'] = actionList['object_point'] + actionList['normal_pullback']
         init_movement(String('object_point'))
     except Exception, e:
         print str(e)
@@ -230,7 +232,6 @@ def check_goal(motor_id, current_pos):
     if (actionstep != {}):
         for motor in actionstep[count].split('/'):
             motorID, value = motor.split(',')
-            print motorID, ':', abs(current_pos - float(value))
             if motorID in motor_id:
                 if abs(current_pos - float(value)) > 0.1:
                     return True
@@ -294,7 +295,7 @@ def main():
     rospy.loginfo('Manipulator Start')
     rospy.spin()
 
-def init_joy_cmd(action)
+def init_joy_cmd(action):
         init_movement(action)
 
 def is_manipulable_handle(req):
