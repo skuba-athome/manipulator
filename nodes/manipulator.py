@@ -73,7 +73,6 @@ def init_point(data):
     actionList['object_point'] = []
     actionList['object_point'].append('gripper,-0.4')
     actionList['object_point'].append('gripper,0.5')
-    #actionList['object_point'].append('gripper,0.5')
 
     # format : x,y,z
     try:
@@ -101,11 +100,6 @@ def init_point(data):
 def init_point_split(data):
     global pub
     actionList['object_point'] = []
-    #	actionList['object_point'].append('joint1,0/joint2,0.5/joint3,0/gripper,-1.38')
-    #	actionList['object_point'].append('mark43_1,1.02/mark43_2,1.02/mark43_3,0')
-    #	actionList['object_point'].append('mark43_1,1.02/mark43_2,1.02/mark43_3,0')
-    #	actionList['object_point'].append('mark43_1,1.02/mark43_2,1.02/mark43_3,0')
-    #	actionList['object_point'].append('joint1,0/joint2,0/joint3,0/gripper,-0.1')
     actionList['object_point'] = actionList['object_point'] + actionList['normal_for_get']
 
     # format : x,y,z
@@ -166,41 +160,86 @@ def init_point_split(data):
         print str(e)
         pub['is_fin'].publish('error')
 
+#====== open challange =========
 
-def init_point_split_top(data):
+def grasp(data):
     global pub
     actionList['object_point'] = []
-    actionList['object_point'].append('joint1,1.57/joint3,-1.57/gripper,-1.38')
-    actionList['object_point'].append('mark44_1,1.57/mark44_2,1.57/mark44_3,0/joint2,-1.57')
-    actionList['object_point'].append('joint1,0/joint2,-1/joint3,-1.57/gripper,-0.1')
-
-    # format : x,y,z
-    x, y, z = data.x, data.y, data.z
-    y -= 0.01
-    # extend
-    src = z + 0.1
-    print src, z
-
-    delay = Delay()
-    publish = Publish()
-    readObject(object_list)
-    readLocation(location_list)
-    readLocationSequence(search_sequence)
-    main()
+    actionList['object_point'] = actionList['object_point'] + actionList['normal_for_get']
 
     try:
-        for i in frange(src, z, -0.01):
-            theta = invKinematic(x, y, i)
-            print 'step', i, ':', x, y, i
-            print theta
-            actionList['object_point'].append('mark44_1,' + str(math.radians(-theta[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(theta[0] + theta[1]) * 2) + '/mark44_3,' + str(math.radians(theta[2])))
+        (trans, rot) = tf_listener.lookupTransform('/base_link', '/mani_link', rospy.Time(0))
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        return
 
-        actionList['object_point'].append('gripper,-1.38')
-        actionList['object_point'] = actionList['object_point'] + actionList['pullback']
+    x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
+    x += 0.02
+    y -= 0.035
+    z -= 0.06
+    # extend
+    print '####', 'x', x, 'y', y, 'z', z
+    dist = math.sqrt(x * x + y * y)
+    zeeta = math.atan(y / x)
+    print "##################### last step : ", dist * math.cos(zeeta), dist * math.sin(zeeta), z
+    print '#####', 'dist', dist, 'zeeta', zeeta
+
+    try:
+        theta0 = invKinematic((dist) * math.cos(zeeta), (dist) * math.sin(zeeta), z)
+        actionList['object_point'].append(
+            'mark44_1,' + str(math.radians(theta0[0]) * 2) + '/mark44_2,' + str(-math.radians(theta0[0]) * 2))
+        x_2 = 0.11 * math.sin(math.radians(theta0[0]))
+        y_2 = 0.11 * math.cos(math.radians(theta0[0]))
+        dist_true = math.sqrt(dist * dist - 0.11 * 0.11)
+        #print '#####', 'theta0', theta0[0]
+        #print "#####", 'x_2', x_2, 'y_2', y_2
+        #print '#####', 'dist_true', dist_true
+        for i in frange(0.45, dist_true, 0.05):
+            theta = invKinematic(i * math.cos(math.radians(theta0[0])) + x_2,
+                                 i * math.sin(math.radians(theta0[0])) - y_2, z)
+            print '######', 'step', i, ':', i * math.cos(math.radians(theta0[0])) + x_2, i * math.sin(
+                math.radians(theta0[0])) - y_2, z
+            #print theta
+            actionList['object_point'].append('joint2,' + str(- math.radians(theta[3])))
+            actionList['object_point'].append('gripper,0.5')
+            #actionList['object_point'].append('mark43_1,'+str(math.radians(-theta[0]+theta[1])*2)+'/mark43_2,'+str(math.radians(theta[0]+theta[1])*2)+'/mark43_3,'+str(math.radians(theta[2])))
+            actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(-theta0[0] + theta[1]) * 2) + '/mark44_3,' + str(math.radians(theta[2]) * -4))
+            theta_tmp = str((math.radians(theta[2]) * -4) + 1)
+
+        actionList['object_point'].append('gripper,-0.4')
+        actionList['object_point'].append('mark44_3,' + theta_tmp)
         init_movement(String('object_point'))
-    except:
+    except Exception, e:
+        print str(e)
         pub['is_fin'].publish('error')
 
+def pour(data):
+    global pub
+    actionList['object_point'] = []
+
+    try:
+        (trans,rot) = tf_listener.lookupTransform('/base_link', '/mani_link', rospy.Time(0))
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        return
+    print data
+    x,y,z = data.x-trans[0],data.y-trans[1],data.z-trans[2]
+    z += 0.25
+    y -= 0.18
+    x -= 0.05
+    print "DataAfter Trans:"+str((x,y,z,trans))
+
+    theta = invKinematic(x,y,z)
+    print 'invkine : ',x,y,z
+    print theta
+    actionList['object_point'].append('mark43_1,'+str(math.radians(theta[0]+theta[1])*2)+'/mark43_2,'+str(math.radians(-theta[0]+theta[1])*2))
+    actionList['object_point'].append('mark43_3,'+str(math.radians(theta[2])) * -4)
+    actionList['object_point'].append('joint2,' + str(- math.radians(theta[3])))
+    actionList['object_point'].append('gripper,-0.4')
+    #actionList['object_point'].append('joint2,-1.57')
+    actionList['object_point'].append('joint1,-2')
+    #actionList['object_point'] = actionList['object_point']+actionList['normal_pullback']
+    init_movement(String('object_point'))
+
+#============================
 
 def init_movement(data):
     global actionstep, count
@@ -285,7 +324,8 @@ def main():
     rospy.Subscriber("/manipulator/action", String, init_movement)
     rospy.Subscriber("/manipulator/object_point", Vector3, init_point)
     rospy.Subscriber("/manipulator/object_point_split", Vector3, init_point_split)
-    rospy.Subscriber("/manipulator/object_point_split_top", Vector3, init_point_split_top)
+    rospy.Subscriber("/manipulator/grasp", Vector3, grasp)
+    rospy.Subscriber("/manipulator/pour", Vector3, pour)
     rospy.Subscriber("/diagnostics", DiagnosticArray, diag)
 
     rospy.Service("isManipulable", isManipulable, is_manipulable_handle)
