@@ -3,6 +3,7 @@ import rospy
 import roslib
 import time
 import math
+import os
 
 from inverseKinematic import invKinematic
 from geometry_msgs.msg import Vector3
@@ -23,8 +24,6 @@ import tf
 actionstep = {}
 count = 0
 pub = {}
-
-packagePath = roslib.packages.get_pkg_dir('manipulator')
 
 actionList = {}
 dynamixel = {10: 'pan_kinect', 11: 'tilt_kinect', 21: 'mark44_1', 22: 'mark44_2', 23: 'mark44_3', 40: 'joint1',
@@ -116,9 +115,9 @@ def init_point_split(data):
         return
 
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
-    x += 0.02
-    y -= 0.035
-    z -= 0.06
+    #x += 0.02
+    y -= 0.05
+    #z -= 0.06
     # extend
     print '####', 'x', x, 'y', y, 'z', z
     dist = math.sqrt(x * x + y * y)
@@ -145,7 +144,7 @@ def init_point_split(data):
             print '######', 'step', i, ':', i * math.cos(math.radians(theta0[0])) + x_2, i * math.sin(
                 math.radians(theta0[0])) - y_2, z
             #print theta
-            actionList['object_point'].append('joint2,' + str(- math.radians(theta[3])))
+            actionList['object_point'].append('joint2,' + str(- math.radians(theta[3]) + 0.2))
             actionList['object_point'].append('gripper,0.5')
             #actionList['object_point'].append('mark43_1,'+str(math.radians(-theta[0]+theta[1])*2)+'/mark43_2,'+str(math.radians(theta[0]+theta[1])*2)+'/mark43_3,'+str(math.radians(theta[2])))
             actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(-theta0[0] + theta[1]) * 2) + '/mark44_3,' + str(math.radians(theta[2]) * -4))
@@ -173,9 +172,9 @@ def grasp(data):
         return
 
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
-    x += 0.02
-    y -= 0.035
-    z -= 0.06
+    #x += 0.02
+    y -= 0.05
+    #z -= 0.06
     # extend
     print '####', 'x', x, 'y', y, 'z', z
     dist = math.sqrt(x * x + y * y)
@@ -285,6 +284,8 @@ def diag(data):
             #if (i.hardware_id[19:21] in '21 22 23'):
             #   print i.hardware_id[19:21],float(i.values[2].value)
             #print i.values[5].value
+            if (i.hardware_id[19:21] in '26'):
+                continue
             if (i.values[5].value == 'True'):
                 all_moving = 1
             elif (i.hardware_id[19:21] in '21 22 23'):
@@ -341,7 +342,8 @@ def init_joy_cmd(action):
 def is_manipulable_handle(req):
     print "in isManipulableHandle method" + str(req)
     try:
-        theta = invKinematic(req.x, req.y, req.z)
+        (trans, rot) = tf_listener.lookupTransform('/base_link', '/mani_link', rospy.Time(0))
+        theta = invKinematic(req.x - trans[0], req.y - trans[1], req.z - trans[2])
         return isManipulableResponse(True)
     except:
         return isManipulableResponse(False)
@@ -350,15 +352,16 @@ def is_manipulable_handle(req):
 if __name__ == '__main__':
     try:
         rospy.loginfo('Manipulator Start Readfile')
-        temp = open(packagePath + '/action/actionList.txt')
-        for line in temp:
-            line = line.strip()
-            actionFile = open(packagePath + '/action/' + line + '.txt')
-            actionList[line] = []
-            for step in actionFile:
-                if (step.strip() == ''):
-                    continue
-                actionList[line].append(step.strip())
+        action_path = roslib.packages.get_pkg_dir('manipulator') + '/action'
+        for action_filename in os.listdir(action_path):
+            if action_filename.endswith(".txt"):
+                action_name = os.path.splitext(os.path.basename(action_filename))[0]
+                action_file = open(os.path.join(action_path, action_filename))
+                actionList[action_name] = []
+                for step in action_file:
+                    if (step.strip() == ''):
+                        continue
+                    actionList[action_name].append(step.strip())
         rospy.loginfo('Readfile Complete')
         main()
     except rospy.ROSInterruptException:
