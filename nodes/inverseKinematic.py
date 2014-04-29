@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from math import degrees,acos,atan,sqrt,sin,cos,asin,radians
 
-gripper_length = 0.15
+gripper_length = 0.11
 
 def invKinematic(x,y,z):
         print x,y,z
