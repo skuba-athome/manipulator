@@ -168,8 +168,8 @@ def grasp(data):
         return
 
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
-    x -= 0.03
-    y -= 0.06
+    #x -= 0.03
+    #y -= 0.06
     #z -= 0.06
     # extend
     print '####', 'x', x, 'y', y, 'z', z
