@@ -54,7 +54,7 @@ def sendCommand(motorID, value):
             try:
                 rospy.loginfo('settorque')
                 setTorque = rospy.ServiceProxy('/' + motorID + '/set_torque_limit', SetTorqueLimit)
-                respTorque = setTorque(0.25)
+                respTorque = setTorque(0.30)
             except rospy.ServiceException, e:
                 print "Service Torque call failed %s" % e
         pub[motorID].publish(value)
@@ -97,18 +97,10 @@ def init_point(data):
     init_movement(String('object_point'))
 
 
-def init_point_split(data):
+def init_split(data):
     global pub
     actionList['object_point'] = []
     actionList['object_point'] = actionList['object_point'] + actionList['normal_for_get']
-
-    # format : x,y,z
-    #x,y,z = data.x,data.y,data.z
-    #z += 0.04
-    #if(y>=0):
-    #	y -= (0.1)
-    #else:
-    #	y -= 0.1
 
     try:
         (trans, rot) = tf_listener.lookupTransform('/base_link', '/mani_link', rospy.Time(0))
@@ -116,38 +108,41 @@ def init_point_split(data):
         return
 
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
+    #==== offset ====
     #x -= 0.03
-    #y -= 0.03
+    y -= 0.05
     #z -= 0.06
+    #===============
     # extend
     print '####', 'x', x, 'y', y, 'z', z
 
-    try:
-        theta0 = invKinematic(x, y, z)
-        actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0]) * 2) + '/mark44_2,' + str(-math.radians(theta0[0]) * 2))
-        x_0 = 0.12 * math.sin(math.radians(theta0[0]))
-        y_0 = 0.12 * math.cos(math.radians(theta0[0]))
-        dist = math.sqrt(x * x + y * y)
-        dist_true = math.sqrt(dist * dist - 0.12 * 0.12)
-        print '#####', 'theta0', theta0[0]
-        print "#####", 'x_0', x_0, 'y_0', y_0
-        print '#####', 'dist_true', dist_true
-        #for i in frange(0.45, dist+0.04, 0.05):
-        for i in frange(0.45, dist_true, 0.05):
-            #theta = invKinematic(i*math.cos(zeeta),i*math.sin(zeeta),z)
-            #print 'step',i,':',i*math.cos(zeeta),i*math.sin(zeeta),z
-            theta = invKinematic(i * math.cos(math.radians(theta0[0])) + x_0,
-                                 i * math.sin(math.radians(theta0[0])) - y_0, z)
-            print '######', 'step', i, ':', i * math.cos(math.radians(theta0[0])) + x_0, i * math.sin(math.radians(theta0[0])) - y_0, z
-            #print theta
-            actionList['object_point'].append('joint2,' + str(- math.radians(theta[3]) + 0.05))
-            actionList['object_point'].append('gripper,0.5')
-            #actionList['object_point'].append('mark43_1,'+str(math.radians(-theta[0]+theta[1])*2)+'/mark43_2,'+str(math.radians(theta[0]+theta[1])*2)+'/mark43_3,'+str(math.radians(theta[2])))
-            actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(-theta0[0] + theta[1]) * 2) + '/mark44_3,' + str(math.radians(theta[2]) * -4))
-            #actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(-theta0[0] + theta[1]) * 2))
-            #actionList['object_point'].append('mark44_3,' + str(math.radians(theta[2]) * -4))
+    theta0 = invKinematic(x, y, z)
+    actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0]) * 2) + '/mark44_2,' + str(-math.radians(theta0[0]) * 2))
+    x_0 = 0.12 * math.sin(math.radians(theta0[0]))
+    y_0 = 0.12 * math.cos(math.radians(theta0[0]))
+    dist = math.sqrt(x * x + y * y)
+    dist_true = math.sqrt(dist * dist - 0.12 * 0.12)
+    print '#####', 'theta0', theta0[0]
+    print "#####", 'x_0', x_0, 'y_0', y_0
+    print '#####', 'dist_true', dist_true
 
-        actionList['object_point'].append('gripper,-0.4')
+    for i in frange(0.45, dist_true, 0.05):
+        #theta = invKinematic(i*math.cos(zeeta),i*math.sin(zeeta),z)
+        theta = invKinematic(i * math.cos(math.radians(theta0[0])) + x_0,
+                             i * math.sin(math.radians(theta0[0])) - y_0, z)
+        print '######', 'step', i, ':', i * math.cos(math.radians(theta0[0])) + x_0, i * math.sin(math.radians(theta0[0])) - y_0, z
+        actionList['object_point'].append('joint2,' + str(- math.radians(theta[3]) + 0.05))
+        actionList['object_point'].append('gripper,0.5')
+        actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(-theta0[0] + theta[1]) * 2) + '/mark44_3,' + str(math.radians(theta[2]) * -4))
+        #actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(-theta0[0] + theta[1]) * 2))
+        #actionList['object_point'].append('mark44_3,' + str(math.radians(theta[2]) * -4))
+    actionList['object_point'].append('gripper,-0.4')
+
+
+def init_point_split(data):
+    global pub
+    try:
+        init_split(data)
         #actionList['object_point'] = actionList['object_point'] + actionList['pullback']
         actionList['object_point'] = actionList['object_point'] + actionList['normal_pullback']
         init_movement(String('object_point'))
@@ -155,57 +150,19 @@ def init_point_split(data):
         print str(e)
         pub['is_fin'].publish('error')
 
+
 #====== open challange =========
 
 def grasp(data):
     global pub
-    actionList['object_point'] = []
-    actionList['object_point'] = actionList['object_point'] + actionList['normal_for_get']
-
     try:
-        (trans, rot) = tf_listener.lookupTransform('/base_link', '/mani_link', rospy.Time(0))
-    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-        return
-
-    x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
-    #x -= 0.03
-    #y -= 0.06
-    #z -= 0.06
-    # extend
-    print '####', 'x', x, 'y', y, 'z', z
-    dist = math.sqrt(x * x + y * y)
-    zeeta = math.atan(y / x)
-    print "##################### last step : ", dist * math.cos(zeeta), dist * math.sin(zeeta), z
-    print '#####', 'dist', dist, 'zeeta', zeeta
-
-    try:
-        theta0 = invKinematic((dist) * math.cos(zeeta), (dist) * math.sin(zeeta), z)
-        actionList['object_point'].append(
-            'mark44_1,' + str(math.radians(theta0[0]) * 2) + '/mark44_2,' + str(-math.radians(theta0[0]) * 2))
-        x_2 = 0.11 * math.sin(math.radians(theta0[0]))
-        y_2 = 0.11 * math.cos(math.radians(theta0[0]))
-        dist_true = math.sqrt(dist * dist - 0.11 * 0.11)
-        #print '#####', 'theta0', theta0[0]
-        #print "#####", 'x_2', x_2, 'y_2', y_2
-        #print '#####', 'dist_true', dist_true
-        for i in frange(0.45, dist_true, 0.05):
-            theta = invKinematic(i * math.cos(math.radians(theta0[0])) + x_2,
-                                 i * math.sin(math.radians(theta0[0])) - y_2, z)
-            print '######', 'step', i, ':', i * math.cos(math.radians(theta0[0])) + x_2, i * math.sin(
-                math.radians(theta0[0])) - y_2, z
-            #print theta
-            actionList['object_point'].append('joint2,' + str(- math.radians(theta[3]) + 0.1))
-            actionList['object_point'].append('gripper,0.5')
-            #actionList['object_point'].append('mark43_1,'+str(math.radians(-theta[0]+theta[1])*2)+'/mark43_2,'+str(math.radians(theta[0]+theta[1])*2)+'/mark43_3,'+str(math.radians(theta[2])))
-            actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(-theta0[0] + theta[1]) * 2) + '/mark44_3,' + str(math.radians(theta[2]) * -4))
-            theta_tmp = str((math.radians(theta[2]) * -4) + 1)
-
-        actionList['object_point'].append('gripper,-0.4')
-        actionList['object_point'].append('mark44_3,' + theta_tmp)
+        init_split(data)
+        actionList['object_point'].append('mark44_3,-6.58')
         init_movement(String('object_point'))
     except Exception, e:
         print str(e)
         pub['is_fin'].publish('error')
+
 
 def pour(data):
     global pub
@@ -217,22 +174,28 @@ def pour(data):
         return
     print data
     x,y,z = data.x-trans[0],data.y-trans[1],data.z-trans[2]
-    z += 0.25
-    y -= 0.18
-    x -= 0.05
+    #==== offset ====
+    z += 0.20
+    y -= 0.05
+    #x -= 0.05
+    #================
     print "DataAfter Trans:"+str((x,y,z,trans))
 
-    theta = invKinematic(x,y,z)
-    print 'invkine : ',x,y,z
-    print theta
-    actionList['object_point'].append('mark43_1,'+str(math.radians(theta[0]+theta[1])*2)+'/mark43_2,'+str(math.radians(-theta[0]+theta[1])*2))
-    actionList['object_point'].append('mark43_3,'+str(math.radians(theta[2])) * -4)
-    actionList['object_point'].append('joint2,' + str(- math.radians(theta[3])))
-    actionList['object_point'].append('gripper,-0.4')
-    #actionList['object_point'].append('joint2,-1.57')
-    actionList['object_point'].append('joint1,-2')
-    #actionList['object_point'] = actionList['object_point']+actionList['normal_pullback']
-    init_movement(String('object_point'))
+    try:
+        theta = invKinematic(x,y,z)
+        print 'invkine : ',x,y,z
+        print theta
+        actionList['object_point'].append('mark44_1,'+str(math.radians(theta[0]+theta[1]) * 2)+'/mark44_2,'+str(math.radians(-theta[0]+theta[1]) * 2))#+'/mark44_3,'+str(math.radians(theta[2]) * -4))
+        actionList['object_point'].append('mark44_3,'+str(math.radians(theta[2]) * -4))
+        actionList['object_point'].append('joint2,' + str(- math.radians(theta[3])))
+        actionList['object_point'].append('gripper,-0.4')
+        actionList['object_point'].append('joint3,-1.57')
+        #actionList['object_point'].append('joint1,-2')
+        #actionList['object_point'] = actionList['object_point']+actionList['normal_pullback']
+        init_movement(String('object_point'))
+    except Exception, e:
+        print str(e)
+        pub['is_fin'].publish('error')
 
 #============================
 
@@ -240,8 +203,8 @@ def init_movement(data):
     global actionstep, count
     actionname = data.data
     if (actionname in actionList):
-        #count = -1
-        count = 0
+        count = -1
+        #count = 0
         actionstep = actionList[actionname]
         rospy.loginfo('##### init action #####')
         rospy.loginfo('Action Name : ' + actionname)
@@ -255,14 +218,15 @@ def movement_step():
     if (count == len(actionstep)):
         return
     rospy.loginfo('step ' + str(count) + ' : ' + actionstep[count])
+    #print 'actionstep :',actionstep
     for motor in actionstep[count].split('/'):
         motorID, value = motor.split(',')
         sendCommand(motorID, value)
 
 def check_goal(motor_id, current_pos):
     global count
-    if (count >= len(actionstep)):
-        return
+    if count >= len(actionstep) or count == -1:
+        return False
     if (actionstep != {}):
         for motor in actionstep[count].split('/'):
             motorID, value = motor.split(',')
