@@ -110,7 +110,7 @@ def init_split(data):
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
     #==== offset ====
     #x -= 0.03
-    y -= 0.05
+    #y -= 0.05
     #z -= 0.06
     #===============
     # extend
