@@ -99,6 +99,7 @@ def init_point(data):
 
 def init_split(data):
     global pub
+    print 'send data :',data
     actionList['object_point'] = []
     actionList['object_point'] = actionList['object_point'] + actionList['normal_for_get']
 
@@ -110,8 +111,8 @@ def init_split(data):
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
     #==== offset ====
     #x -= 0.03
-    y -= 0.05
-    #z -= 0.06
+    #y -= 0.05
+    z += 0.04
     #===============
     # extend
     print '####', 'x', x, 'y', y, 'z', z
@@ -157,7 +158,7 @@ def grasp(data):
     global pub
     try:
         init_split(data)
-        actionList['object_point'].append('mark44_3,-6.58')
+        actionList['object_point'].append('mark44_3,-6')
         init_movement(String('object_point'))
     except Exception, e:
         print str(e)
@@ -175,9 +176,9 @@ def pour(data):
     print data
     x,y,z = data.x-trans[0],data.y-trans[1],data.z-trans[2]
     #==== offset ====
-    z += 0.20
-    y -= 0.05
-    #x -= 0.05
+    x -= 0.034
+    y -= 0.078
+    z += 0.18
     #================
     print "DataAfter Trans:"+str((x,y,z,trans))
 
@@ -189,7 +190,7 @@ def pour(data):
         actionList['object_point'].append('mark44_3,'+str(math.radians(theta[2]) * -4))
         actionList['object_point'].append('joint2,' + str(- math.radians(theta[3])))
         actionList['object_point'].append('gripper,-0.4')
-        actionList['object_point'].append('joint3,-1.57')
+        actionList['object_point'].append('joint3,-2.28')
         #actionList['object_point'].append('joint1,-2')
         #actionList['object_point'] = actionList['object_point']+actionList['normal_pullback']
         init_movement(String('object_point'))
