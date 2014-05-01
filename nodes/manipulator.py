@@ -143,8 +143,8 @@ def init_point_split(data):
     global pub
     try:
         init_split(data)
-        #actionList['object_point'] = actionList['object_point'] + actionList['pullback']
-        actionList['object_point'] = actionList['object_point'] + actionList['normal_pullback']
+        actionList['object_point'] = actionList['object_point'] + actionList['pullback']
+        #actionList['object_point'] = actionList['object_point'] + actionList['normal_pullback']
         init_movement(String('object_point'))
     except Exception, e:
         print str(e)
