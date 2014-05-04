@@ -111,8 +111,8 @@ def init_split(data):
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
     #==== offset ====
     #x -= 0.03
-    y -= 0.01
-    #z -= 0.05
+    #y -= 0.01
+    z += 0.05
     #===============
     # extend
     print '####', 'x', x, 'y', y, 'z', z
@@ -127,7 +127,8 @@ def init_split(data):
     print "#####", 'x_0', x_0, 'y_0', y_0
     print '#####', 'dist_true', dist_true
 
-    for i in frange(0.45, dist_true, 0.05):
+    #for i in frange(0.45, dist_true, 0.05):
+    for i in frange(0.5, dist_true, 0.05):
         #theta = invKinematic(i*math.cos(zeeta),i*math.sin(zeeta),z)
         theta = invKinematic(i * math.cos(math.radians(theta0[0])) + x_0,
                              i * math.sin(math.radians(theta0[0])) - y_0, z)
