@@ -111,8 +111,8 @@ def init_split(data):
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
     #==== offset ====
     #x -= 0.03
-    #y -= 0.05
-    #z -= 0.06
+    y -= 0.01
+    #z -= 0.05
     #===============
     # extend
     print '####', 'x', x, 'y', y, 'z', z
@@ -144,8 +144,8 @@ def init_point_split(data):
     global pub
     try:
         init_split(data)
-        #actionList['object_point'] = actionList['object_point'] + actionList['pullback']
-        actionList['object_point'] = actionList['object_point'] + actionList['normal_pullback']
+        actionList['object_point'] = actionList['object_point'] + actionList['pullback']
+        #actionList['object_point'] = actionList['object_point'] + actionList['normal_pullback']
         init_movement(String('object_point'))
     except Exception, e:
         print str(e)
