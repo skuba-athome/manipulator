@@ -46,7 +46,10 @@ def sendCommand(motorID, value):
         try:
             #rospy.loginfo('setspeed')
             setSpeed = rospy.ServiceProxy('/' + motorID + '/set_speed', SetSpeed)
-            respSpeed = setSpeed(0.4)
+            if (motorID == 'mark44_3'):
+                respSpeed = setSpeed(0.15)
+            else:
+                respSpeed = setSpeed(0.4)
         except rospy.ServiceException, e:
             print "Service Speed call failed %s" % e
         if (motorID == 'gripper'):
@@ -111,8 +114,8 @@ def init_split(data):
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
     #==== offset ====
     #x -= 0.03
-    y -= 0.01
-    #z -= 0.05
+    #y -= 0.01
+    #z -= 0.03
     #===============
     # extend
     print '####', 'x', x, 'y', y, 'z', z
