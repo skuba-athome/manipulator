@@ -1,0 +1,1 @@
+rosservice call /gripper/set_torque "...0.24"
