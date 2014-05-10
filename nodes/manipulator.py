@@ -46,10 +46,7 @@ def sendCommand(motorID, value):
         try:
             #rospy.loginfo('setspeed')
             setSpeed = rospy.ServiceProxy('/' + motorID + '/set_speed', SetSpeed)
-            if (motorID == 'mark44_3'):
-                respSpeed = setSpeed(0.15)
-            else:
-                respSpeed = setSpeed(0.4)
+            respSpeed = setSpeed(0.4)
         except rospy.ServiceException, e:
             print "Service Speed call failed %s" % e
         if (motorID == 'gripper'):
@@ -114,8 +111,8 @@ def init_split(data):
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
     #==== offset ====
     #x -= 0.03
-    #y -= 0.01
-    #z -= 0.03
+    y -= 0.02
+    z += 0.05
     #===============
     # extend
     print '####', 'x', x, 'y', y, 'z', z
@@ -161,7 +158,7 @@ def grasp(data):
     global pub
     try:
         init_split(data)
-        actionList['object_point'].append('mark44_3,-6.58')
+        actionList['object_point'].append('mark44_3,-6.4')
         init_movement(String('object_point'))
     except Exception, e:
         print str(e)
@@ -180,7 +177,7 @@ def pour(data):
     x,y,z = data.x-trans[0],data.y-trans[1],data.z-trans[2]
     #==== offset ====
     z += 0.20
-    y -= 0.05
+    #y -= 0.03
     #x -= 0.05
     #================
     print "DataAfter Trans:"+str((x,y,z,trans))
@@ -252,9 +249,9 @@ def diag(data):
                 continue
             if (i.values[5].value == 'True'):
                 all_moving = 1
-            elif (i.hardware_id[19:21] in '21 22 23'):
-                if check_goal(dynamixel[int(i.hardware_id[19:21])],float(i.values[1].value)):
-                    all_moving = 1
+            #elif (i.hardware_id[19:21] in '21 22 23'):
+            #    if check_goal(dynamixel[int(i.hardware_id[19:21])],float(i.values[1].value)):
+            #        all_moving = 1
         else:  #there are some not joint package from diagnostics
             return
     if (count > len(actionstep)):
