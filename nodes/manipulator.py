@@ -46,7 +46,10 @@ def sendCommand(motorID, value):
         try:
             #rospy.loginfo('setspeed')
             setSpeed = rospy.ServiceProxy('/' + motorID + '/set_speed', SetSpeed)
-            respSpeed = setSpeed(0.4)
+            if motorID == 'mark44_3':
+                respSpeed = setSpeed(0.15)
+            else:
+                respSpeed = setSpeed(0.4)
         except rospy.ServiceException, e:
             print "Service Speed call failed %s" % e
         if (motorID == 'gripper'):
@@ -111,8 +114,8 @@ def init_split(data):
     x, y, z = data.x - trans[0], data.y - trans[1], data.z - trans[2]
     #==== offset ====
     #x -= 0.03
-    y -= 0.02
-    z += 0.05
+    #y -= 0.01
+    z += 0.08
     #===============
     # extend
     print '####', 'x', x, 'y', y, 'z', z
@@ -127,7 +130,8 @@ def init_split(data):
     print "#####", 'x_0', x_0, 'y_0', y_0
     print '#####', 'dist_true', dist_true
 
-    for i in frange(0.45, dist_true, 0.05):
+    #for i in frange(0.45, dist_true, 0.05):
+    for i in frange(0.5, dist_true, 0.05):
         #theta = invKinematic(i*math.cos(zeeta),i*math.sin(zeeta),z)
         theta = invKinematic(i * math.cos(math.radians(theta0[0])) + x_0,
                              i * math.sin(math.radians(theta0[0])) - y_0, z)
@@ -158,7 +162,7 @@ def grasp(data):
     global pub
     try:
         init_split(data)
-        actionList['object_point'].append('mark44_3,-6.4')
+        actionList['object_point'].append('mark44_3,-6.58')
         init_movement(String('object_point'))
     except Exception, e:
         print str(e)
@@ -168,6 +172,7 @@ def grasp(data):
 def pour(data):
     global pub
     actionList['object_point'] = []
+    actionList['object_point'] = actionList['object_point'] + actionList['normal_for_get']
 
     try:
         (trans,rot) = tf_listener.lookupTransform('/base_link', '/mani_link', rospy.Time(0))
@@ -176,9 +181,9 @@ def pour(data):
     print data
     x,y,z = data.x-trans[0],data.y-trans[1],data.z-trans[2]
     #==== offset ====
-    z += 0.20
-    #y -= 0.03
-    #x -= 0.05
+#    x -= 0.12
+#    y -= 0.09
+#    z += 0.30
     #================
     print "DataAfter Trans:"+str((x,y,z,trans))
 
@@ -186,11 +191,11 @@ def pour(data):
         theta = invKinematic(x,y,z)
         print 'invkine : ',x,y,z
         print theta
-        actionList['object_point'].append('mark44_1,'+str(math.radians(theta[0]+theta[1]) * 2)+'/mark44_2,'+str(math.radians(-theta[0]+theta[1]) * 2))#+'/mark44_3,'+str(math.radians(theta[2]) * -4))
-        actionList['object_point'].append('mark44_3,'+str(math.radians(theta[2]) * -4))
+        actionList['object_point'].append('mark44_1,'+str(math.radians(theta[0]+theta[1]) * 2)+'/mark44_2,'+str(math.radians(-theta[0]+theta[1]) * 2)+'/mark44_3,'+str(math.radians(theta[2]) * -4))
+        #actionList['object_point'].append('mark44_3,'+str(math.radians(theta[2]) * -4))
         actionList['object_point'].append('joint2,' + str(- math.radians(theta[3])))
         actionList['object_point'].append('gripper,-0.4')
-        actionList['object_point'].append('joint3,-1.57')
+        actionList['object_point'].append('joint3,-2.2')
         #actionList['object_point'].append('joint1,-2')
         #actionList['object_point'] = actionList['object_point']+actionList['normal_pullback']
         init_movement(String('object_point'))
@@ -250,7 +255,7 @@ def diag(data):
             if (i.values[5].value == 'True'):
                 all_moving = 1
             #elif (i.hardware_id[19:21] in '21 22 23'):
-            #    if check_goal(dynamixel[int(i.hardware_id[19:21])],float(i.values[1].value)):
+            #   if check_goal(dynamixel[int(i.hardware_id[19:21])],float(i.values[1].value)):
             #        all_moving = 1
         else:  #there are some not joint package from diagnostics
             return
