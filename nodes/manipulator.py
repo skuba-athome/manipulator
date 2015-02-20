@@ -8,16 +8,13 @@ import os
 from inverseKinematic import invKinematic
 from geometry_msgs.msg import Vector3
 
-roslib.load_manifest('manipulator')
-roslib.load_manifest('dynamixel_controllers')
-
 from std_msgs.msg import String
 from std_msgs.msg import Float64
 from dynamixel_msgs.msg import JointState
 from diagnostic_msgs.msg import DiagnosticArray
 from dynamixel_controllers.srv import SetSpeed
 from dynamixel_controllers.srv import SetTorqueLimit
-from manipulator.srv import *
+#from manipulator.srv import *
 
 import tf
 
@@ -295,7 +292,7 @@ def main():
     rospy.Subscriber("/manipulator/pour", Vector3, pour)
     rospy.Subscriber("/diagnostics", DiagnosticArray, diag)
 
-    rospy.Service("isManipulable", isManipulable, is_manipulable_handle)
+    #rospy.Service("isManipulable", isManipulable, is_manipulable_handle)
 
     tf_listener = tf.TransformListener()
 
