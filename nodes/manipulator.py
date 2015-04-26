@@ -23,8 +23,7 @@ count = 0
 pub = {}
 
 actionList = {}
-dynamixel = {10: 'pan_kinect', 11: 'tilt_kinect', 21: 'mark44_1', 22: 'mark44_2', 23: 'mark44_3', 40: 'joint1',
-             41: 'joint2', 42: 'joint3', 43: 'gripper'}
+dynamixel = {10: 'pan_kinect', 11: 'tilt_kinect', 20: 'shoulder_L_20', 21: 'shoulder_L_21', 22: 'elbow_L_22', 40: 'hand_L_40', 41: 'hand_L_41', 42: 'hand_L_42', 43: 'gripper_L_43_L_43', 50: 'torso_M_50'}
 
 tf_listener = []
 
@@ -43,13 +42,13 @@ def sendCommand(motorID, value):
         try:
             #rospy.loginfo('setspeed')
             setSpeed = rospy.ServiceProxy('/' + motorID + '/set_speed', SetSpeed)
-            if motorID == 'mark44_3':
+            if motorID == 'elbow_L_22':
                 respSpeed = setSpeed(0.15)
             else:
                 respSpeed = setSpeed(0.4)
         except rospy.ServiceException, e:
             print "Service Speed call failed %s" % e
-        if (motorID == 'gripper'):
+        if (motorID == 'gripper_L_43'):
             rospy.wait_for_service('/' + motorID + '/set_torque_limit')
             try:
                 rospy.loginfo('settorque')
@@ -71,8 +70,8 @@ def frange(start, end, step):
 def init_point(data):
     global pub
     actionList['object_point'] = []
-    actionList['object_point'].append('gripper,-0.4')
-    actionList['object_point'].append('gripper,0.5')
+    actionList['object_point'].append('gripper_L_43,-0.4')
+    actionList['object_point'].append('gripper_L_43,0.5')
 
     # format : x,y,z
     try:
@@ -89,13 +88,14 @@ def init_point(data):
     theta = invKinematic(x, y, z)
     print 'invkine : ', x, y, z
     print theta
-    actionList['object_point'].append('mark44_1,' + str(math.radians(-theta[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(theta[0] + theta[1]) * 2))
-    actionList['object_point'].append('mark44_3,' + str(math.radians(theta[2]) * -4))
+###################################################################################################
+    actionList['object_point'].append('shoulder_L_20,' + str(theta[0]) + '/shoulder_L_21,' + str(theta[1]))
+    actionList['object_point'].append('elbow_L_22,' + str(theta[2]))
 
-    actionList['object_point'].append('gripper,-0.4')
+    actionList['object_point'].append('gripper_L_43,-0.4')
     actionList['object_point'] = actionList['object_point'] + actionList['pullback']
     init_movement(String('object_point'))
-
+#################^^^^^^ NEED CARE ^^^^^^##########################################################
 
 def init_split(data):
     global pub
@@ -112,33 +112,19 @@ def init_split(data):
     #==== offset ====
     #x -= 0.03
     #y -= 0.01
-    z += 0.08
+    #z += 0.08
     #===============
     # extend
     print '####', 'x', x, 'y', y, 'z', z
 
-    theta0 = invKinematic(x, y, z)
-    actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0]) * 2) + '/mark44_2,' + str(-math.radians(theta0[0]) * 2))
-    x_0 = 0.12 * math.sin(math.radians(theta0[0]))
-    y_0 = 0.12 * math.cos(math.radians(theta0[0]))
-    dist = math.sqrt(x * x + y * y)
-    dist_true = math.sqrt(dist * dist - 0.12 * 0.12)
-    print '#####', 'theta0', theta0[0]
-    print "#####", 'x_0', x_0, 'y_0', y_0
-    print '#####', 'dist_true', dist_true
+    #theta0 = invKinematic(x, y, z)
 
-    #for i in frange(0.45, dist_true, 0.05):
-    for i in frange(0.5, dist_true, 0.05):
-        #theta = invKinematic(i*math.cos(zeeta),i*math.sin(zeeta),z)
-        theta = invKinematic(i * math.cos(math.radians(theta0[0])) + x_0,
-                             i * math.sin(math.radians(theta0[0])) - y_0, z)
-        print '######', 'step', i, ':', i * math.cos(math.radians(theta0[0])) + x_0, i * math.sin(math.radians(theta0[0])) - y_0, z
-        actionList['object_point'].append('joint2,' + str(- math.radians(theta[3]) + 0.05))
-        actionList['object_point'].append('gripper,0.5')
-        actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(-theta0[0] + theta[1]) * 2) + '/mark44_3,' + str(math.radians(theta[2]) * -4))
-        #actionList['object_point'].append('mark44_1,' + str(math.radians(theta0[0] + theta[1]) * 2) + '/mark44_2,' + str(math.radians(-theta0[0] + theta[1]) * 2))
-        #actionList['object_point'].append('mark44_3,' + str(math.radians(theta[2]) * -4))
-    actionList['object_point'].append('gripper,-0.4')
+    for i in frange(y+0.1, y, 0.02):
+        thetai = invKinematic(x, i, z)
+        actionList['object_point'].append('shoulder_L_20,' + str(thetai[0]) + '/shoulder_L_21,' + str(thetai[1]) + '/elbow_L_22,' + str(thetai[2]) + '/hand_L_40,' + str(thetai[3]) + '/hand_L_41,' + str(thetai[4]) + '/hand_L_42,' + str(thetai[5]) + '/hand_L_43,' + str(thetai[6]))
+
+    actionList['object_point'].append('gripper_L_43,-0.4')
+    ##################################################################################
 
 
 def init_point_split(data):
@@ -153,54 +139,7 @@ def init_point_split(data):
         pub['is_fin'].publish('error')
 
 
-#====== open challange =========
-
-def grasp(data):
-    global pub
-    try:
-        init_split(data)
-        actionList['object_point'].append('mark44_3,-6.58')
-        init_movement(String('object_point'))
-    except Exception, e:
-        print str(e)
-        pub['is_fin'].publish('error')
-
-
-def pour(data):
-    global pub
-    actionList['object_point'] = []
-    actionList['object_point'] = actionList['object_point'] + actionList['normal_for_get']
-
-    try:
-        (trans,rot) = tf_listener.lookupTransform('/base_link', '/mani_link', rospy.Time(0))
-    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-        return
-    print data
-    x,y,z = data.x-trans[0],data.y-trans[1],data.z-trans[2]
-    #==== offset ====
-#    x -= 0.12
-#    y -= 0.09
-#    z += 0.30
-    #================
-    print "DataAfter Trans:"+str((x,y,z,trans))
-
-    try:
-        theta = invKinematic(x,y,z)
-        print 'invkine : ',x,y,z
-        print theta
-        actionList['object_point'].append('mark44_1,'+str(math.radians(theta[0]+theta[1]) * 2)+'/mark44_2,'+str(math.radians(-theta[0]+theta[1]) * 2)+'/mark44_3,'+str(math.radians(theta[2]) * -4))
-        #actionList['object_point'].append('mark44_3,'+str(math.radians(theta[2]) * -4))
-        actionList['object_point'].append('joint2,' + str(- math.radians(theta[3])))
-        actionList['object_point'].append('gripper,-0.4')
-        actionList['object_point'].append('joint3,-2.2')
-        #actionList['object_point'].append('joint1,-2')
-        #actionList['object_point'] = actionList['object_point']+actionList['normal_pullback']
-        init_movement(String('object_point'))
-    except Exception, e:
-        print str(e)
-        pub['is_fin'].publish('error')
-
-#============================
+################chalenge has been deleted###################
 
 def init_movement(data):
     global actionstep, count
@@ -274,13 +213,13 @@ def main():
     global pub, tf_listener
     pub['pan_kinect'] = rospy.Publisher('/pan_kinect/command', Float64)
     pub['tilt_kinect'] = rospy.Publisher('/tilt_kinect/command', Float64)
-    pub['mark44_1'] = rospy.Publisher('/mark44_1/command', Float64)
-    pub['mark44_2'] = rospy.Publisher('/mark44_2/command', Float64)
-    pub['mark44_3'] = rospy.Publisher('/mark44_3/command', Float64)
-    pub['joint1'] = rospy.Publisher('/joint1/command', Float64)
-    pub['joint2'] = rospy.Publisher('/joint2/command', Float64)
-    pub['joint3'] = rospy.Publisher('/joint3/command', Float64)
-    pub['gripper'] = rospy.Publisher('/gripper/command', Float64)
+    pub['shoulder_L_20'] = rospy.Publisher('/shoulder_L_20/command', Float64)
+    pub['shoulder_L_21'] = rospy.Publisher('/shoulder_L_21/command', Float64)
+    pub['elbow_L_22'] = rospy.Publisher('/elbow_L_22/command', Float64)
+    pub['hand_L_40'] = rospy.Publisher('/hand_L_40/command', Float64)
+    pub['hand_L_41'] = rospy.Publisher('/hand_L_41/command', Float64)
+    pub['hand_L_42'] = rospy.Publisher('/hand_L_42/command', Float64)
+    pub['gripper_L_43_L'] = rospy.Publisher('/gripper_L_43/command', Float64)
 
     pub['is_fin'] = rospy.Publisher('/manipulator/is_fin', String)
     rospy.init_node('manipulator')
@@ -314,7 +253,7 @@ def is_manipulable_handle(req):
 
 if __name__ == '__main__':
     try:
-        rospy.loginfo('Manipulator Start Readfile')
+        rospy.loginfo('Manipulator Start Readfile LOL')
         action_path = roslib.packages.get_pkg_dir('manipulator') + '/action'
         for action_filename in os.listdir(action_path):
             if action_filename.endswith(".txt"):
