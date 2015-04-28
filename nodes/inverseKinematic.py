@@ -8,7 +8,7 @@ def invKinematic(x, y, z):
     R = math.pow(x * x + z * z, 0.5)
     Zeta = math.acos((R * R - 35 * 35 - r * r) / (2 * 35 * r))
     ZetaII = math.asin(35 * math.sin(Zeta) / R)
-    As20 = math.atan(x / abs(z)) - (Zeta - ZetaII)
+    As20 = math.asin(x / R) - (Zeta - ZetaII)
     As21 = math.atan(y / (r * math.sin(Zeta)))
     Ae22 = (math.pi / 2) - math.acos(r * math.cos(Zeta) / 29.0)
     z2 = 35 * math.cos(As20) - z
