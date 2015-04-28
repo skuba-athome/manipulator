@@ -23,7 +23,7 @@ count = 0
 pub = {}
 
 actionList = {}
-dynamixel = {10: 'pan_kinect', 11: 'tilt_kinect', 20: 'shoulder_L_20', 21: 'shoulder_L_21', 22: 'elbow_L_22', 40: 'hand_L_40', 41: 'hand_L_41', 42: 'hand_L_42', 43: 'gripper_L_43_L_43', 50: 'torso_M_50'}
+dynamixel = {10: 'pan_kinect', 11: 'tilt_kinect', 20: 'shoulder_L_20', 21: 'shoulder_L_21', 22: 'elbow_L_22', 40: 'hand_L_40', 41: 'hand_L_41', 42: 'hand_L_42', 43: 'gripper_L_43', 50: 'torso_M_50'}
 
 tf_listener = []
 
@@ -88,14 +88,18 @@ def init_point(data):
     theta = invKinematic(x, y, z)
     print 'invkine : ', x, y, z
     print theta
-###################################################################################################
-    actionList['object_point'].append('shoulder_L_20,' + str(theta[0]) + '/shoulder_L_21,' + str(theta[1]))
+
+    actionList['object_point'].append('shoulder_L_20,' + str(theta[0]))
+    actionList['object_point'].append('shoulder_L_21,' + str(theta[1]))
     actionList['object_point'].append('elbow_L_22,' + str(theta[2]))
 
+    actionList['object_point'].append('hand_L_40,' + str(theta[3]))
+    actionList['object_point'].append('hand_L_41,' + str(theta[4]))
+    actionList['object_point'].append('hand_L_42,' + str(theta[5]))
     actionList['object_point'].append('gripper_L_43,-0.4')
     actionList['object_point'] = actionList['object_point'] + actionList['pullback']
     init_movement(String('object_point'))
-#################^^^^^^ NEED CARE ^^^^^^##########################################################
+
 
 def init_split(data):
     global pub
@@ -118,10 +122,10 @@ def init_split(data):
     print '####', 'x', x, 'y', y, 'z', z
 
     #theta0 = invKinematic(x, y, z)
-
-    for i in frange(y+0.1, y, 0.02):
+    x-=0.21
+    for i in frange(x+0.21, x, 0.03):
         thetai = invKinematic(x, i, z)
-        actionList['object_point'].append('shoulder_L_20,' + str(thetai[0]) + '/shoulder_L_21,' + str(thetai[1]) + '/elbow_L_22,' + str(thetai[2]) + '/hand_L_40,' + str(thetai[3]) + '/hand_L_41,' + str(thetai[4]) + '/hand_L_42,' + str(thetai[5]) + '/hand_L_43,' + str(thetai[6]))
+        actionList['object_point'].append('shoulder_L_20,' + str(thetai[0]) + '/shoulder_L_21,' + str(thetai[1]) + '/elbow_L_22,' + str(thetai[2]) + '/hand_L_40,' + str(thetai[3]) + '/hand_L_41,' + str(thetai[4]) + '/hand_L_42,' + str(thetai[5]) + '/gripper_L_43,' + str(thetai[6]))
 
     actionList['object_point'].append('gripper_L_43,-0.4')
     ##################################################################################
