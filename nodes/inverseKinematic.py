@@ -9,12 +9,12 @@ def invKinematic(x, y, z):
     Zeta = math.acos((R * R - 35 * 35 - r * r) / (2 * 35 * r))
     ZetaII = math.asin(35 * math.sin(Zeta) / R)
     As20 = math.asin(x / R) - (Zeta - ZetaII)
+    elbowposition=[35*math.sin(As20),35*math.cos(As20)]
     As21 = math.atan(y / (r * math.sin(Zeta)))
     Ae22 = (math.pi / 2) - math.acos(r * math.cos(Zeta) / 29.0)
     z2 = 35 * math.cos(As20) - z
     Ah40 = -(math.asin(y / math.pow(y * y + z2 * z2, 0.5)))
-    #Ah41 = math.acos((x - 35 * math.sin(As20)) / 29.0)
-    Ah41 = 0.0
+    Ah41 = math.acos((x - (35 * math.sin(As20))) / 29.0)
     Ah42 = -Ah40
     Ag43 = 0
 
@@ -32,11 +32,13 @@ def invKinematic(x, y, z):
     print "X is", (35 * math.sin(As20) + r * math.sin(math.pi - Zeta - As20))
     print "Y is", (29 * math.sin((math.pi / 2) - Ae22) * math.sin(As21))
     print "Z is", (r * math.cos(math.pi - Zeta - As20) - 35 * math.cos(As20))
+    #print ( 35*math.sin(As20) + 29*math.cos( As20 - Ae22) )
+    #print (-35*math.cos(As20) + 29*math.sin(As20 - Ae22))
     return [As20, As21, Ae22, Ah40, Ah41, Ah42, Ag43]
 
 
 if __name__ == "__main__":
-    invKinematic(45, 0, -15)
+    invKinematic(45, 0, -20)
     print "--"
     invKinematic(29, 0, -35)
     print "--"
