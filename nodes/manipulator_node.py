@@ -16,7 +16,7 @@ from diagnostic_msgs.msg import DiagnosticArray
 from dynamixel_controllers.srv import SetSpeed
 from dynamixel_controllers.srv import SetTorqueLimit
 
-from manipulator.srv import *
+from manipulator_S.srv import *
 
 import tf
 
