@@ -1,0 +1,5 @@
+<launch>
+
+	<node pkg="manipulator" name="manipulator" type="manipulator.py" output="screen"/>
+
+</launch>
