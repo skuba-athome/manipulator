@@ -8,64 +8,83 @@ import os
 from inverseKinematic import invKinematic
 from geometry_msgs.msg import Vector3
 
+#roslib.load_manifest('manipulator')
+#roslib.load_manifest('dynamixel_controllers')
+
 from std_msgs.msg import String
 from std_msgs.msg import Float64
-from dynamixel_msgs.msg import JointState
+#from dynamixel_msgs.msg import JointState
 from diagnostic_msgs.msg import DiagnosticArray
-
 from dynamixel_controllers.srv import SetSpeed
 from dynamixel_controllers.srv import SetTorqueLimit
-
 from manipulator.srv import *
 
 import tf
 
 
-
-def main():
-    global tf_listener
-    pub =['','','','','','','']
-    pub[0] = rospy.Publisher('/shoulder_L_20/command', Float64)
-    pub[1] = rospy.Publisher('/shoulder_L_21/command', Float64)
-    pub[2] = rospy.Publisher('/elbow_L_22/command', Float64)
-    pub[3] = rospy.Publisher('/hand_L_40/command', Float64)
-    pub[4] = rospy.Publisher('/hand_L_41/command', Float64)
-    pub[5] = rospy.Publisher('/hand_L_42/command', Float64)
-    pub[6] = rospy.Publisher('/gripper_L_43/command', Float64)
-
-#    pub['is_fin'] = rospy.Publisher('/manipulator/is_fin', String)
-#    rospy.init_node('manipulator')
-#    rospy.Subscriber("joy_cmd_manipulate", String, init_joy_cmd)
-#    rospy.Subscriber("/manipulator/action", String, init_movement)
-#    rospy.Subscriber("/manipulator/object_point", Vector3, init_point)
-#    rospy.Subscriber("/manipulator/object_point_split", Vector3, init_point_split)
-    #rospy.Subscriber("/manipulator/grasp", Vector3, grasp)
-    #rospy.Subscriber("/manipulator/pour", Vector3, pour)
-#    rospy.Subscriber("/diagnostics", DiagnosticArray, diag)
-
-    #rospy.Service("isManipulable", isManipulable, is_manipulable_handle)
-
-    tf_listener = tf.TransformListener()
-
-    rospy.loginfo('Manipulator Start')
-    s = rospy.Service('manipulator_service', manipulator_S, is_manipulable_handle)
-    print "joeey service is ready"
-
-    #does this need to remove away?#
-    rospy.spin()
-    #################################
+actionstep = {}
+count = 0
 
 
+finish_manipulate = False
 
 
+pub = {}
+
+actionList = {}
+dynamixel = {21: 'right_1', 22: 'right_2', 23: 'right_3', 40: 'joint1',41: 'joint2', 42: 'joint3', 43: 'gripper'}
+dynamixeljointstate = {}
+reachgoalstatus = {}
+dynamixelerrlength = {'right_1' : 0.05 ,'right_2' : 0.05,'right_3' :0.05 ,'joint1' : 0.05 , 'joint2' : 0.05 ,'joint3':0.05 , 'gripper':0.05  }
+
+searchaddress = ['21 22 23 40 41 42 43']
+tf_listener = []
 
 
+def sendCommand(motorID, value):
+    global pub
+    #rospy.loginfo(motorID+':'+value)
+    data = motorID + "," + value
+    try:
+        motorID = int(motorID)
+        value = float(value)
+        pub[dynamixel[motorID]].publish(value)
+    except ValueError:
+        rospy.loginfo('failed in sendcommand')
+        # value = float(value)
+        # rospy.wait_for_service('/' + motorID + '/set_speed')
+        # try:
+        #     #rospy.loginfo('setspeed')
+        #     setSpeed = rospy.ServiceProxy('/' + motorID + '/set_speed', SetSpeed)
+        #     if motorID == 'mark44_3':
+        #         respSpeed = setSpeed(0.15)
+        #     else:
+        #         respSpeed = setSpeed(0.4)
+        # except rospy.ServiceException, e:
+        #     print "Service Speed call failed %s" % e
+        if (motorID == 'gripper'):
+            rospy.wait_for_service('/' + motorID + '/set_torque_limit')
+            try:
+                rospy.loginfo('settorque')
+                setTorque = rospy.ServiceProxy('/' + motorID + '/set_torque_limit', SetTorqueLimit)
+                respTorque = setTorque(0.30)
+            except rospy.ServiceException, e:
+                print "Service Torque call failed %s" % e
+        pub[motorID].publish(value)
+    rospy.loginfo('#' + data)
+
+
+def frange(start, end, step):
+    while start <= end:
+        yield start
+        start += step
+    yield end
 
 def init_split(data):
     global pub
     print 'send data :',data
-    #actionList['object_point'] = []
-    #actionList['object_point'] = actionList['object_point'] + actionList['normal_for_get']
+    actionList['object_point'] = []
+    #actionList['object_point'] = actionList['object_point'] + actionList['pullback']
 
     try:
         (trans, rot) = tf_listener.lookupTransform('/base_link', '/mani_link', rospy.Time(0))
@@ -76,79 +95,218 @@ def init_split(data):
     #==== offset ====
     #x -= 0.03
     #y -= 0.01
-    #z += 0.08
+    z += 0.08
+    ## Table Tall (DiningRoom z = 70cm)
     #===============
     # extend
-    print '####', 'x', x, 'y', y, 'z', z
-    x0 = x
+    print '####SetPoint', 'x', x, 'y', y, 'z', z
 
-    #theta0 = invKinematic(x, y, z)
     try:
-        x-=0.30
-        for i in frange(x, x+0.30, 0.03):
-            thetai = invKinematic(x, i, z)
-            print thetai
-
-        x = x0
-        x-=0.30
-        for i in frange(x, x+0.30, 0.03):
-            thetai = invKinematic(x, i, z)
-            motor_pub(thetai)
-            pub['gripper_L_43'].publish(0)
-            return True
-        
+        xendpts = x
+        x-= 0.30
+        if ((x < 0.4) and (xendpts >= 0.4)) : 
+            x = 0.4
+        step = 1
+        for eachstep in frange(x,xendpts, 0.05):
+            print 'step : ' + str(step) + ' x = ' + str(eachstep) + 'y = ' + str(y) + 'z = ' + str(z)  
+            theta = invKinematic(eachstep, y, z)
+            #print theta
+            ##Add action movement in each forloop
+            actionList['object_point'].append('right_1,'+ str(theta[0]) + '/right_2,'+str(theta[1]) ) ##Do 2 dof of sholder together
+            actionList['object_point'].append('right_3,'+ str(theta[2]) ) ##Do Elbow
+            actionList['object_point'].append('joint1,'+ str(theta[3]) + '/joint2,' + str(theta[4]) + '/joint3,' + str(theta[5]) )
+            print ' action : right_1,' + str(theta[0]) + '/right_2,'+ str(theta[1]) 
+            step += 1
+            print 'right_3,'+ str(theta[2])
+            print 'joint1,'+ str(theta[3]) + '/joint2,' + str(theta[4]) + '/joint3,' + str(theta[5])
+            print '---------------------'
+        #actionList['object_point'].append('gripper,0') ##close_grip
+        actionList['object_point'].append(actionList['grip_close']) ##close_grip
     except:
+        rospy.loginfo('Init Split Error')
         return False
-    ##################################################################################
 
 
-def motor_pub(theta):
-    #pub['pan_kinect']
-    #pub['tilt_kinect']
-    pub[0].publish(theta[0])
-    pub[1].publish(theta[1])
-    pub[2].publish(theta[2])
-    pub[3].publish(theta[3])
-    pub[4].publish(theta[4])
-    pub[5].publish(theta[5])
-    pub[6].publish(theta[6])
+def init_point_split(data):
+    global pub
+    try:
+        init_split(data)
+        actionList['object_point'] = actionList['object_point'] + actionList['pullback']
+        #actionList['object_point'] = actionList['object_point'] + actionList['normal_pullback']
+        init_movement(String('object_point'))
+        return True
+    except Exception, e:
+        print str(e)
+        #pub['is_fin'].publish('error')
+        return False
+
+
+
+def init_movement(data):
+    global actionstep, count
+    actionname = data.data
+    if (actionname in actionList):
+        count = -1
+        #count = 0
+        actionstep = actionList[actionname]
+        rospy.loginfo('##### init action #####')
+        rospy.loginfo('Action Name : ' + actionname)
+        rospy.loginfo('Sum Step : ' + str(len(actionstep)))
+        rospy.loginfo('#######################')
+
+    else:
+        rospy.logerr('No action : ' + actionname)
+
+def movement_step():
+    global count
+    if (count == len(actionstep)):
+        return
+    rospy.loginfo('step ' + str(count) + ' : ' + actionstep[count])
+    #print 'actionstep :',actionstep
+    for motor in actionstep[count].split('/'):
+        motorID, value = motor.split(',')
+        sendCommand(motorID, value)
+
+# def check_goal(motor_id, current_pos):
+#     global count
+#     if count >= len(actionstep) or count == -1:
+#         return False
+#     if (actionstep != {}):
+#         for motor in actionstep[count].split('/'):
+#             motorID, value = motor.split(',')
+#             if motorID in motor_id:
+#                 if abs(current_pos - float(value)) > 0.1:
+#                     return True
+#                 else:
+#                     return False
+
+def diag(data):
+    global count,dynamixeljointstate,dynamixel,reachgoalstatus,finish_manipulate
+    #all_moving = 0
+    for i in data.status:
+        if (i.name[:16] == 'Joint Controller'):
+            if (i.hardware_id[19:21] in searchaddress):#Search for ID in sentense
+                #print 'Motor No.' + str(i.hardware_id[19:21]) + ' current_pos = ' + str(i.values[1].value)
+                for key in pub:
+                    #if joint[key].id is int(i.hardware_id[19:21]):
+                    if int(key) is int(i.hardware_id[19:21]):
+                        #joint[key].currentAngle = i.values[1].value
+                        dynamixeljointstate[dynamixel[key]] = i.values[2].value # read joint Error in Radian
+                        #print 'Motor No.' + str(joint[key].id) + ' current_pos = ' + str(joint[key].currentAngle)
+        else:  #there are some not joint package from diagnostics
+            return
+    ##Check Manip
+    if (count > len(actionstep)):
+        rospy.loginfo('Waiting for Action...')
+        return
+    #Process Action Step
+    for key in dynamixeljointstate:
+        if dynamixeljointstate[key]  <= abs(dynamixelerrlength[key]):
+            reachgoalstatus[key] = True
+        if all(val == True for val in reachgoalstatus.values()):
+            #finishstep = True
+            count += 1
+            print ''
+        
+    if (count == len(actionstep)):
+        finish_manipulate = True
+        rospy.loginfo('Finish Action!!!')
+        count += 1
+        return
+    movement_step()
+    ##Clear step status
+    for key in dynamixeljointstate:
+        reachgoalstatus[key] = False
+
+
+def main():
+    global pub, tf_listener
+    pub['pan_kinect'] = rospy.Publisher('/pan_kinect/command', Float64)
+    pub['tilt_kinect'] = rospy.Publisher('/tilt_kinect/command', Float64)
+    pub['right_1'] = rospy.Publisher('/right_1/command', Float64)
+    pub['right_2'] = rospy.Publisher('/right_2/command', Float64)
+    pub['right_3'] = rospy.Publisher('/right_3/command', Float64)
+    pub['joint1'] = rospy.Publisher('/joint1/command', Float64)
+    pub['joint2'] = rospy.Publisher('/joint2/command', Float64)
+    pub['joint3'] = rospy.Publisher('/joint3/command', Float64)
+    pub['gripper'] = rospy.Publisher('/gripper/command', Float64)
+
+    #pub['is_fin'] = rospy.Publisher('/manipulator/is_fin', String)
+    rospy.init_node('manipulator')
+    rospy.Subscriber("joy_cmd_manipulate", String, init_joy_cmd)
+    rospy.Subscriber("/diagnostics", DiagnosticArray, diag)
+
+    rospy.Service("isManipulable", isManipulable, is_manipulable_handle)
+
+    tf_listener = tf.TransformListener()
+
+    rospy.loginfo('Manipulator Start')
+    rospy.spin()
+
+def init_joy_cmd(action):
+        init_movement(action)
 
 def is_manipulable_handle(req):
-    print "in isManipulableHandle method" + str(req)
+    global dynamixelerrlength,dynamixeljointstate,reachgoalstatus,finish_manipulate
+    print "in isManipulableHandle method " + str(req)
+
     try:
+        finish_manipulate = False
+
         (trans, rot) = tf_listener.lookupTransform('/base_link', '/mani_link', rospy.Time(0))
+        ##check if the points is reachable
+        #print "tf : tx = " + str(trans[0]) + " ty = " + str(trans[1]) + " tz = " + str(trans[2])
+        theta = invKinematic(req.x - trans[0], req.y - trans[1], req.z - trans[2])
+    
+        ##send data to process
+        tempdata = Vector3()
+        tempdata.x = req.x
+        tempdata.y = req.y
+        tempdata.z = req.z
+        retstaus = init_point_split(tempdata)
+    
+        print "retstaus ->" + str(retstaus)
+        if retstaus is True:
+            ##init Reach goal status
+            for key in dynamixeljointstate:
+                reachgoalstatus[key] = False
+                
 
-        print req
-        data = invKinematic(req.x - trans[0] , req.y - trans[1], req.z - trans[2])
+            while finish_manipulate is not True:
+                try:
+                    pass
+                except:
+                    rospy.loginfo('Fail Service'+ str(1))
+                    isManipulableResponse(False)
+                    
+            isManipulableResponse(True)
         
-        #init_split(data)
-        return isManipulableResponse(init_split(data))
+        else:
+            rospy.loginfo('Fail Service'+ str(2))
+            return isManipulableResponse(False)
 
-    except:
+        return isManipulableResponse(True)
+    except Exception as e:
+        rospy.loginfo('Fail Service'+ str(3)) 
+        print str(e)
         return isManipulableResponse(False)
 
 
-def manipulator_server():
-    rospy.init_node('manipulator_server')
-    main()
-    rospy.spin()
-
 if __name__ == '__main__':
-
     try:
-        rospy.loginfo('Manipulator service activated')
-        manipulator_server()
-#        action_path = roslib.packages.get_pkg_dir('manipulator') + '/action'
-#        for action_filename in os.listdir(action_path):
-#            if action_filename.endswith(".txt"):
-#                action_name = os.path.splitext(os.path.basename(action_filename))[0]
-#                action_file = open(os.path.join(action_path, action_filename))
-#                actionList[action_name] = []
-#                for step in action_file:
-#                    if (step.strip() == ''):
-#                        continue
-#                    actionList[action_name].append(step.strip())
-#        rospy.loginfo('Readfile Complete')
-#        main()
+        rospy.loginfo('Manipulator Start Readfile')
+        action_path = roslib.packages.get_pkg_dir('manipulator') + '/action'
+        #action_path = rospack.get_path('manipulator') + '/action'
+        for action_filename in os.listdir(action_path):
+            if action_filename.endswith(".txt"):
+                action_name = os.path.splitext(os.path.basename(action_filename))[0]
+                action_file = open(os.path.join(action_path, action_filename))
+                actionList[action_name] = []
+                for step in action_file:
+                    if (step.strip() == ''):
+                        continue
+                    actionList[action_name].append(step.strip())
+        rospy.loginfo('Readfile Complete')
+        main()
     except rospy.ROSInterruptException:
         pass
