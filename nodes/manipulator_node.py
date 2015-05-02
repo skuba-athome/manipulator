@@ -32,12 +32,13 @@ finish_manipulate = False
 pub = {}
 
 actionList = {}
-dynamixel = {21: 'right_1', 22: 'right_2', 23: 'right_3', 40: 'joint1',41: 'joint2', 42: 'joint3', 43: 'gripper'}
-dynamixeljointstate = {}
+dynamixel = {20: 'right_1', 21: 'right_2', 22: 'right_3', 40: 'joint1',41: 'joint2', 42: 'joint3', 43: 'gripper'}
+dynamixeljointerror = {}
 reachgoalstatus = {}
-dynamixelerrlength = {'right_1' : 0.05 ,'right_2' : 0.05,'right_3' :0.05 ,'joint1' : 0.05 , 'joint2' : 0.05 ,'joint3':0.05 , 'gripper':0.05  }
-
-searchaddress = ['21 22 23 40 41 42 43']
+dynamixelerrlength = {'right_1' : 0.1 ,'right_2' : 0.1,'right_3' :0.1 ,'joint1' : 0.1 , 'joint2' : 0.1 ,'joint3':0.1 , 'gripper':0.1  }
+#mark-44 Torelance = 65 encoder value -> 0.35 degree = 0.006 rad
+#orion-45 Torelance = +- 3 deg = 0.05
+searchaddress = '10 11 20 21 22 40 41 42 43'
 tf_listener = []
 
 
@@ -46,9 +47,11 @@ def sendCommand(motorID, value):
     #rospy.loginfo(motorID+':'+value)
     data = motorID + "," + value
     try:
-        motorID = int(motorID)
+        print 'sendcommand - > ' + str(motorID) + ' value:' + str(value) 
+        #motorID = int(motorID)
         value = float(value)
-        pub[dynamixel[motorID]].publish(value)
+        
+        pub[motorID].publish(value)
     except ValueError:
         rospy.loginfo('failed in sendcommand')
         # value = float(value)
@@ -84,7 +87,7 @@ def init_split(data):
     global pub
     print 'send data :',data
     actionList['object_point'] = []
-    #actionList['object_point'] = actionList['object_point'] + actionList['pullback']
+    #actionList['object_point'] = actionList['object_point'] + actionList['normal_for_get']
 
     try:
         (trans, rot) = tf_listener.lookupTransform('/base_link', '/mani_link', rospy.Time(0))
@@ -102,6 +105,8 @@ def init_split(data):
     print '####SetPoint', 'x', x, 'y', y, 'z', z
 
     try:
+        gripper_length = 0.11
+        x -= gripper_length
         xendpts = x
         x-= 0.30
         if ((x < 0.4) and (xendpts >= 0.4)) : 
@@ -112,10 +117,10 @@ def init_split(data):
             theta = invKinematic(eachstep, y, z)
             #print theta
             ##Add action movement in each forloop
-            actionList['object_point'].append('right_1,'+ str(theta[0]) + '/right_2,'+str(theta[1]) ) ##Do 2 dof of sholder together
+            actionList['object_point'].append('right_1,'+ str(-theta[0]) + '/right_2,'+str(theta[1]) ) ##Do 2 dof of sholder together
             actionList['object_point'].append('right_3,'+ str(theta[2]) ) ##Do Elbow
             actionList['object_point'].append('joint1,'+ str(theta[3]) + '/joint2,' + str(theta[4]) + '/joint3,' + str(theta[5]) )
-            print ' action : right_1,' + str(theta[0]) + '/right_2,'+ str(theta[1]) 
+            print ' action : right_1,' + str(-theta[0]) + '/right_2,'+ str(theta[1]) 
             step += 1
             print 'right_3,'+ str(theta[2])
             print 'joint1,'+ str(theta[3]) + '/joint2,' + str(theta[4]) + '/joint3,' + str(theta[5])
@@ -146,8 +151,8 @@ def init_movement(data):
     global actionstep, count
     actionname = data.data
     if (actionname in actionList):
-        count = -1
-        #count = 0
+        #count = -1
+        count = 0
         actionstep = actionList[actionname]
         rospy.loginfo('##### init action #####')
         rospy.loginfo('Action Name : ' + actionname)
@@ -181,28 +186,40 @@ def movement_step():
 #                     return False
 
 def diag(data):
-    global count,dynamixeljointstate,dynamixel,reachgoalstatus,finish_manipulate
+    global count,dynamixeljointerror,dynamixel,reachgoalstatus,finish_manipulate,searchaddress
     #all_moving = 0
     for i in data.status:
         if (i.name[:16] == 'Joint Controller'):
+            
             if (i.hardware_id[19:21] in searchaddress):#Search for ID in sentense
                 #print 'Motor No.' + str(i.hardware_id[19:21]) + ' current_pos = ' + str(i.values[1].value)
-                for key in pub:
+                for key in dynamixel:
                     #if joint[key].id is int(i.hardware_id[19:21]):
                     if int(key) is int(i.hardware_id[19:21]):
                         #joint[key].currentAngle = i.values[1].value
-                        dynamixeljointstate[dynamixel[key]] = i.values[2].value # read joint Error in Radian
+                        dynamixeljointerror[dynamixel[key]] = i.values[2].value # read joint Error in Radian
                         #print 'Motor No.' + str(joint[key].id) + ' current_pos = ' + str(joint[key].currentAngle)
         else:  #there are some not joint package from diagnostics
             return
+    
+    print 'Current dynamixeljointerror'
+    
+    for key in dynamixeljointerror:
+        print key + ': Error = ' + str(dynamixeljointerror[key])    
+        pass
     ##Check Manip
     if (count > len(actionstep)):
         rospy.loginfo('Waiting for Action...')
         return
+
     #Process Action Step
-    for key in dynamixeljointstate:
-        if dynamixeljointstate[key]  <= abs(dynamixelerrlength[key]):
+    for key in dynamixeljointerror:
+        if dynamixeljointerror[key]  <= abs(dynamixelerrlength[key]):
             reachgoalstatus[key] = True
+        else:
+            reachgoalstatus[key] = False
+
+        print 'ALL : ', reachgoalstatus
         if all(val == True for val in reachgoalstatus.values()):
             #finishstep = True
             count += 1
@@ -215,21 +232,21 @@ def diag(data):
         return
     movement_step()
     ##Clear step status
-    for key in dynamixeljointstate:
+    for key in dynamixeljointerror:
         reachgoalstatus[key] = False
 
 
 def main():
     global pub, tf_listener
-    pub['pan_kinect'] = rospy.Publisher('/pan_kinect/command', Float64)
-    pub['tilt_kinect'] = rospy.Publisher('/tilt_kinect/command', Float64)
-    pub['right_1'] = rospy.Publisher('/right_1/command', Float64)
-    pub['right_2'] = rospy.Publisher('/right_2/command', Float64)
-    pub['right_3'] = rospy.Publisher('/right_3/command', Float64)
-    pub['joint1'] = rospy.Publisher('/joint1/command', Float64)
-    pub['joint2'] = rospy.Publisher('/joint2/command', Float64)
-    pub['joint3'] = rospy.Publisher('/joint3/command', Float64)
-    pub['gripper'] = rospy.Publisher('/gripper/command', Float64)
+    pub['pan_kinect'] = rospy.Publisher('/dynamixel/pan_kinect/command', Float64)
+    pub['tilt_kinect'] = rospy.Publisher('/dynamixel/tilt_kinect/command', Float64)
+    pub['right_1'] = rospy.Publisher('/dynamixel/right_1/command', Float64)
+    pub['right_2'] = rospy.Publisher('/dynamixel/right_2/command', Float64)
+    pub['right_3'] = rospy.Publisher('/dynamixel/right_3/command', Float64)
+    pub['joint1'] = rospy.Publisher('/dynamixel/joint1/command', Float64)
+    pub['joint2'] = rospy.Publisher('/dynamixel/joint2/command', Float64)
+    pub['joint3'] = rospy.Publisher('/dynamixel/joint3/command', Float64)
+    pub['gripper'] = rospy.Publisher('/dynamixel/gripper/command', Float64)
 
     #pub['is_fin'] = rospy.Publisher('/manipulator/is_fin', String)
     rospy.init_node('manipulator')
@@ -247,7 +264,7 @@ def init_joy_cmd(action):
         init_movement(action)
 
 def is_manipulable_handle(req):
-    global dynamixelerrlength,dynamixeljointstate,reachgoalstatus,finish_manipulate
+    global dynamixelerrlength,dynamixeljointerror,reachgoalstatus,finish_manipulate
     print "in isManipulableHandle method " + str(req)
 
     try:
@@ -268,12 +285,13 @@ def is_manipulable_handle(req):
         print "retstaus ->" + str(retstaus)
         if retstaus is True:
             ##init Reach goal status
-            for key in dynamixeljointstate:
+            for key in dynamixeljointerror:
                 reachgoalstatus[key] = False
                 
 
             while finish_manipulate is not True:
                 try:
+                    #print 'Wait for action'
                     pass
                 except:
                     rospy.loginfo('Fail Service'+ str(1))
