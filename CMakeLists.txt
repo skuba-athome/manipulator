@@ -9,7 +9,8 @@ find_package(catkin REQUIRED
 
  add_service_files(
    FILES
-   manipulator_S.srv
+   #manipulator_S.srv
+   isManipulable.srv
  )
 
 generate_messages(
