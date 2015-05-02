@@ -1,2 +1,0 @@
-tilt_kinect,-0.7
-pan_kinect,0

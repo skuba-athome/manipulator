@@ -1,4 +1,4 @@
-mark44_3,-4.78
-mark44_1,1.9/mark44_2,-2.85
-joint1,1.54/joint3,-1.07/gripper,-0.5
-joint2,-1
+right_1,0.4
+right_2,1.54
+right_3,0
+joint1,0/joint2,1.54/joint3,0/gripper,0
