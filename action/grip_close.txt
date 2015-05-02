@@ -1,1 +1,1 @@
-gripper,-0.4
+gripper,0
