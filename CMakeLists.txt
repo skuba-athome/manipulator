@@ -11,6 +11,7 @@ find_package(catkin REQUIRED
    FILES
    #manipulator_S.srv
    isManipulable.srv
+   ManipulateAction.srv
  )
 
 generate_messages(

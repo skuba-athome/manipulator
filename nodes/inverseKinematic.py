@@ -8,6 +8,7 @@ def invKinematic(x, y, z):
     ForearmLength = 0.29
     #UpperarmLength=35.0
     UpperarmLength = 0.35
+    shoulderhack_encoderratio = 1.75 
     FL=ForearmLength
     UL=UpperarmLength
 
@@ -18,11 +19,13 @@ def invKinematic(x, y, z):
     As20 = math.asin(x / R) - (Zeta - ZetaII)
     elbowposition=[UL*math.sin(As20),UL*math.cos(As20)]
     As21 = math.atan(y / (r * math.sin(Zeta)))
+    As21 = -As21
     Ae22 = (math.pi / 2) - math.acos(r * math.cos(Zeta) / FL)
     z2 = UL * math.cos(As20) - z
     Ah40 = -(math.asin(y / math.pow(y * y + z2 * z2, 0.5)))
     Ah41 = math.acos((x - (UL * math.sin(As20))) / FL)
     Ah42 = -Ah40
+    As20 = As20/shoulderhack_encoderratio
     #Ag43 = math.pi/2]=9
 
     # print "R", R

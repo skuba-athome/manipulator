@@ -19,6 +19,7 @@ from dynamixel_controllers.srv import SetSpeed
 from dynamixel_controllers.srv import SetTorqueLimit
 from manipulator.srv import *
 
+
 import tf
 
 
@@ -26,7 +27,7 @@ actionstep = {}
 count = 0
 
 
-finish_manipulate = False
+finish_manipulate = True
 
 
 pub = {}
@@ -98,7 +99,7 @@ def init_split(data):
     #==== offset ====
     #x -= 0.03
     #y -= 0.01
-    z += 0.08
+    #z += 0.08
     ## Table Tall (DiningRoom z = 70cm)
     #===============
     # extend
@@ -108,25 +109,25 @@ def init_split(data):
         gripper_length = 0.11
         x -= gripper_length
         xendpts = x
-        x-= 0.30
+        x-= 0.3
         if ((x < 0.4) and (xendpts >= 0.4)) : 
             x = 0.4
         step = 1
-        for eachstep in frange(x,xendpts, 0.05):
+        for eachstep in frange(x,xendpts, 0.03):
             print 'step : ' + str(step) + ' x = ' + str(eachstep) + 'y = ' + str(y) + 'z = ' + str(z)  
             theta = invKinematic(eachstep, y, z)
             #print theta
             ##Add action movement in each forloop
             actionList['object_point'].append('right_1,'+ str(-theta[0]) + '/right_2,'+str(theta[1]) ) ##Do 2 dof of sholder together
             actionList['object_point'].append('right_3,'+ str(theta[2]) ) ##Do Elbow
-            actionList['object_point'].append('joint1,'+ str(theta[3]) + '/joint2,' + str(theta[4]) + '/joint3,' + str(theta[5]) )
+            #actionList['object_point'].append('joint1,'+ str(theta[3]) + '/joint2,' + str(theta[4]) + '/joint3,' + str(theta[5]) )
             print ' action : right_1,' + str(-theta[0]) + '/right_2,'+ str(theta[1]) 
             step += 1
             print 'right_3,'+ str(theta[2])
             print 'joint1,'+ str(theta[3]) + '/joint2,' + str(theta[4]) + '/joint3,' + str(theta[5])
             print '---------------------'
         #actionList['object_point'].append('gripper,0') ##close_grip
-        actionList['object_point'].append(actionList['grip_close']) ##close_grip
+        #actionList['object_point'].append(actionList['grip_close']) ##close_grip
     except:
         rospy.loginfo('Init Split Error')
         return False
@@ -151,8 +152,8 @@ def init_movement(data):
     global actionstep, count
     actionname = data.data
     if (actionname in actionList):
-        #count = -1
-        count = 0
+        count = -1
+        #count = 0
         actionstep = actionList[actionname]
         rospy.loginfo('##### init action #####')
         rospy.loginfo('Action Name : ' + actionname)
@@ -164,13 +165,15 @@ def init_movement(data):
 
 def movement_step():
     global count
+    print '__________Current Action step Length = ' + str(len(actionstep)) + '  / COUNT = ' + str(count)
     if (count == len(actionstep)):
         return
-    rospy.loginfo('step ' + str(count) + ' : ' + actionstep[count])
+    rospy.loginfo('*********** count = ' + str(count) + ' : ' + actionstep[count] + '*************')
     #print 'actionstep :',actionstep
     for motor in actionstep[count].split('/'):
         motorID, value = motor.split(',')
         sendCommand(motorID, value)
+    #time.sleep(1)
 
 # def check_goal(motor_id, current_pos):
 #     global count
@@ -186,7 +189,7 @@ def movement_step():
 #                     return False
 
 def diag(data):
-    global count,dynamixeljointerror,dynamixel,reachgoalstatus,finish_manipulate,searchaddress
+    global count,dynamixeljointerror,dynamixel,reachgoalstatus,finish_manipulate,searchaddress,dynamixelerrlength
     #all_moving = 0
     for i in data.status:
         if (i.name[:16] == 'Joint Controller'):
@@ -197,16 +200,16 @@ def diag(data):
                     #if joint[key].id is int(i.hardware_id[19:21]):
                     if int(key) is int(i.hardware_id[19:21]):
                         #joint[key].currentAngle = i.values[1].value
-                        dynamixeljointerror[dynamixel[key]] = i.values[2].value # read joint Error in Radian
+                        dynamixeljointerror[dynamixel[key]] = float(i.values[2].value) # read joint Error in Radian
                         #print 'Motor No.' + str(joint[key].id) + ' current_pos = ' + str(joint[key].currentAngle)
         else:  #there are some not joint package from diagnostics
             return
     
-    print 'Current dynamixeljointerror'
+    #print '***Current dynamixeljointerror***'
     
-    for key in dynamixeljointerror:
-        print key + ': Error = ' + str(dynamixeljointerror[key])    
-        pass
+    #for key in dynamixeljointerror:
+        #print key + ': Error = ' + str(dynamixeljointerror[key])    
+        #pass
     ##Check Manip
     if (count > len(actionstep)):
         rospy.loginfo('Waiting for Action...')
@@ -214,26 +217,38 @@ def diag(data):
 
     #Process Action Step
     for key in dynamixeljointerror:
-        if dynamixeljointerror[key]  <= abs(dynamixelerrlength[key]):
+        #print "Joint Error : "+ key+ "=" + str(dynamixeljointerror[key])
+        #print type(dynamixeljointerror[key]) , type(dynamixelerrlength[key])
+        #print "dynamixelerrlength" + key + "=" + str(dynamixelerrlength[key])
+
+        if dynamixeljointerror[key]  <= dynamixelerrlength[key]:
             reachgoalstatus[key] = True
+            #print 'CHANGED STATUS : ' , reachgoalstatus[key]       
         else:
             reachgoalstatus[key] = False
 
-        print 'ALL : ', reachgoalstatus
+        #print 'Reachgoal STATUS : ' , reachgoalstatus[key]
+        #print 'ALL STATUS: ', reachgoalstatus
         if all(val == True for val in reachgoalstatus.values()):
             #finishstep = True
+            print "-----------------STEP CHANGED--------------"
+            for key in dynamixeljointerror:
+                reachgoalstatus[key] = False
+            time.sleep(0.5)    
             count += 1
-            print ''
+            
         
     if (count == len(actionstep)):
         finish_manipulate = True
         rospy.loginfo('Finish Action!!!')
-        count += 1
+        #count += 1
+        ##Clear step status
+        for key in dynamixeljointerror:
+            reachgoalstatus[key] = False
         return
-    movement_step()
-    ##Clear step status
-    for key in dynamixeljointerror:
-        reachgoalstatus[key] = False
+    if finish_manipulate is not True:
+        movement_step()
+    
 
 
 def main():
@@ -254,14 +269,35 @@ def main():
     rospy.Subscriber("/diagnostics", DiagnosticArray, diag)
 
     rospy.Service("isManipulable", isManipulable, is_manipulable_handle)
-
+    rospy.Service("ManipulateAction",ManipulateAction,manipulate_action_handle)
     tf_listener = tf.TransformListener()
 
     rospy.loginfo('Manipulator Start')
     rospy.spin()
 
 def init_joy_cmd(action):
-        init_movement(action)
+    init_movement(action)
+
+def manipulate_action_handle(req):
+    global dynamixelerrlength,dynamixeljointerror,reachgoalstatus,finish_manipulate
+    finish_manipulate = False
+    init_movement(String(req.action))
+    
+    ##init Reach goal status
+    for key in dynamixeljointerror:
+        reachgoalstatus[key] = False
+    
+    while finish_manipulate is not True:
+        try:
+            #print 'Wait for action'
+            pass
+        except:
+            rospy.loginfo('Fail Service'+ str(1))
+            return ManipulateActionResponse(False)
+    rospy.loginfo('Finish ACTION')                
+    return ManipulateActionResponse(True)
+        
+
 
 def is_manipulable_handle(req):
     global dynamixelerrlength,dynamixeljointerror,reachgoalstatus,finish_manipulate
@@ -295,9 +331,9 @@ def is_manipulable_handle(req):
                     pass
                 except:
                     rospy.loginfo('Fail Service'+ str(1))
-                    isManipulableResponse(False)
+                    return isManipulableResponse(False)
                     
-            isManipulableResponse(True)
+            return isManipulableResponse(True)
         
         else:
             rospy.loginfo('Fail Service'+ str(2))
