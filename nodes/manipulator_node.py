@@ -51,6 +51,8 @@ def sendCommand(motorID, value):
         print 'sendcommand - > ' + str(motorID) + ' value:' + str(value) 
         #motorID = int(motorID)
         value = float(value)
+        if 'right_1' in motorID:
+            value = -value/1.75
         
         pub[motorID].publish(value)
     except ValueError:
@@ -234,7 +236,7 @@ def diag(data):
             print "-----------------STEP CHANGED--------------"
             for key in dynamixeljointerror:
                 reachgoalstatus[key] = False
-            time.sleep(0.5)    
+            time.sleep(3.0)    
             count += 1
             
         
