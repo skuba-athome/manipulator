@@ -8,9 +8,9 @@ right_3,-0.21
 right_3,-0.24
 right_3,-0.27
 right_3,-0.30
-gripper,-1.0
-gripper,0.7
-gripper,-1.0
-gripper,0.7
-gripper,-1.0
-gripper,0.7
+#gripper,-1.0
+#gripper,0.7
+#gripper,-1.0
+#gripper,0.7
+#gripper,-1.0
+#gripper,0.7
