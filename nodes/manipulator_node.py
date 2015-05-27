@@ -36,7 +36,7 @@ actionList = {}
 dynamixel = {20: 'right_1', 21: 'right_2', 22: 'right_3', 40: 'joint1',41: 'joint2', 42: 'joint3', 43: 'gripper'}
 dynamixeljointerror = {}
 reachgoalstatus = {}
-dynamixelerrlength = {'right_1' : 0.1 ,'right_2' : 0.1,'right_3' :0.1 ,'joint1' : 0.1 , 'joint2' : 0.1 ,'joint3':0.1 , 'gripper':0.1  }
+dynamixelerrlength = {'right_1' : 0.17 ,'right_2' : 0.1,'right_3' :0.1 ,'joint1' : 0.1 , 'joint2' : 0.1 ,'joint3':0.1 , 'gripper':0.1  }
 #mark-44 Torelance = 65 encoder value -> 0.35 degree = 0.006 rad
 #orion-45 Torelance = +- 3 deg = 0.05
 searchaddress = '10 11 20 21 22 40 41 42 43'
@@ -220,10 +220,10 @@ def diag(data):
     #Process Action Step
     for key in dynamixeljointerror:
         #print "Joint Error : "+ key+ "=" + str(dynamixeljointerror[key])
-        #print type(dynamixeljointerror[key]) , type(dynamixelerrlength[key])
+        #print dynamixeljointerror[key] , dynamixelerrlength[key]
         #print "dynamixelerrlength" + key + "=" + str(dynamixelerrlength[key])
 
-        if dynamixeljointerror[key]  <= dynamixelerrlength[key]:
+        if abs(dynamixeljointerror[key])  <= dynamixelerrlength[key]:
             reachgoalstatus[key] = True
             #print 'CHANGED STATUS : ' , reachgoalstatus[key]       
         else:
@@ -359,7 +359,7 @@ if __name__ == '__main__':
                 action_file = open(os.path.join(action_path, action_filename))
                 actionList[action_name] = []
                 for step in action_file:
-                    if (step.strip() == ''):
+                    if step.strip() == '' or '#' in step:
                         continue
                     actionList[action_name].append(step.strip())
         rospy.loginfo('Readfile Complete')
