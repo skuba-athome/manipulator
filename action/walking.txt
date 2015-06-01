@@ -1,0 +1,4 @@
+right_1,0.4
+right_2,1.54
+right_3,0
+joint1,0/joint2,1.54/joint3,0/gripper,0
