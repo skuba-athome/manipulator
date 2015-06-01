@@ -4,8 +4,14 @@
   <version>0.0.0</version>
   <description>The manipulator package</description>
   <maintainer email="nicole@todo.todo">nicole</maintainer>
-  <license>TODO</license>
+  <license>BSD</license>
 
+  <run_depend>moveit_ros_move_group</run_depend>
+  <run_depend>moveit_planners_ompl</run_depend>
+  <run_depend>moveit_ros_visualization</run_depend>
+  <run_depend>joint_state_publisher</run_depend>
+  <run_depend>robot_state_publisher</run_depend>
+  <run_depend>xacro</run_depend>
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rospy</build_depend>
@@ -15,6 +21,7 @@
   <build_depend>dynamixel_msgs</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>tf</build_depend>
+
   <run_depend>rospy</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>std_msgs</run_depend>
@@ -22,6 +29,5 @@
   <run_depend>dynamixel_msgs</run_depend>
   <run_depend>message_runtime</run_depend>
   <run_depend>tf</run_depend>
-  <export>
-  </export>
+  
 </package>
