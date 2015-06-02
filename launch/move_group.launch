@@ -2,6 +2,9 @@
 
   <include file="$(find manipulator)/launch/planning_context.launch" />
 
+  <arg name="remap_joint_state_topic" default="false"/>
+  <arg name="joint_state_remap_topic" default=""/>
+
   <!-- GDB Debug Option -->
   <arg name="debug" default="false" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
@@ -38,6 +41,7 @@
 
   <!-- Start the actual move_group node/action server -->
   <node name="move_group" launch-prefix="$(arg launch_prefix)" pkg="moveit_ros_move_group" type="move_group" respawn="false" output="screen" args="$(arg command_args)">
+    <remap from="joint_states" to="$(arg joint_state_remap_topic)" if="$(arg remap_joint_state_topic)"/>
     <!-- Set the display variable, in case OpenGL code is used internally -->
     <env name="DISPLAY" value="$(optenv DISPLAY :0)" />
 
