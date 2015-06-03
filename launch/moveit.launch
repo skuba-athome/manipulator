@@ -7,14 +7,7 @@
   <arg name="debug" default="false" />
 
   <!-- Load the URDF, SRDF and other .yaml configuration files on the param server -->
-  <include file="$(find manipulator)/launch/planning_context.launch">
-    <arg name="load_robot_description" value="true"/>
-  </include>
-
-  <!-- Given the published joint states, publish tf for the robot links -->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen">
-    <remap from="joint_states" to="/dynamixel/joint_states"/>
-  </node>
+  <include file="$(find manipulator)/launch/planning_context.launch"/>
 
   <!-- Run the main MoveIt executable without trajectory execution (we do not have controllers configured by default) -->
   <include file="$(find manipulator)/launch/move_group.launch">
