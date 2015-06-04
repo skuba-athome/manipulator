@@ -1,0 +1,4 @@
+right_3,0
+joint1,0/joint2,0/joint3,0
+right_1,0/right_2,0
+
