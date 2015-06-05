@@ -1,5 +1,5 @@
 <launch>
 
-    <param command="load" file="$(find manipulator)/config/sensors_kinect.yaml" />
+    <rosparam command="load" file="$(find manipulator)/config/sensors_rgbd.yaml" />
 
 </launch>
