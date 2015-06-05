@@ -1,3 +1,5 @@
 <launch>
 
+    <param command="load" file="$(find manipulator)/config/sensors_kinect.yaml" />
+
 </launch>
