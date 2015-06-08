@@ -1,71 +1,71 @@
 joint_limits:
   right_shoulder_1_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   left_wrist_3_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   right_shoulder_2_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   left_elbow_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   right_wrist_2_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   left_wrist_2_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   right_gripper_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   right_elbow_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   left_gripper_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   left_shoulder_2_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   right_wrist_3_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   left_wrist_1_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   right_wrist_1_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2
   left_shoulder_1_joint:
-    has_velocity_limits: false
-    max_velocity: 0
-    has_acceleration_limits: false
-    max_acceleration: 0
+    has_velocity_limits: true
+    max_velocity: 0.2
+    has_acceleration_limits: true
+    max_acceleration: 0.2

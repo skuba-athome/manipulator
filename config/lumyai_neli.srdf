@@ -43,7 +43,7 @@
         <joint name="left_wrist_3_joint" value="0" />
     </group_state>
     <group_state name="right_normal" group="right_arm">
-        <joint name="right_elbow_joint" value="-1.57" />
+        <joint name="right_elbow_joint" value="1.57" />
         <joint name="right_shoulder_1_joint" value="1.57" />
         <joint name="right_shoulder_2_joint" value="0" />
         <joint name="right_wrist_1_joint" value="0" />
