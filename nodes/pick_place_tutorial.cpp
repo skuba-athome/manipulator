@@ -90,7 +90,7 @@ void place(moveit::planning_interface::MoveGroup &group)
 
   geometry_msgs::PoseStamped p;
   p.header.frame_id = "base_link";
-  p.pose.position.x = 0.7;
+  p.pose.position.x = 0.6;
   p.pose.position.y = 0.0;
   p.pose.position.z = 0.5;
   p.pose.orientation.x = 0;
@@ -154,10 +154,14 @@ int main(int argc, char **argv)
   moveit::planning_interface::MoveGroup left_arm_group("left_arm");
   group.setPlanningTime(45.0);
   left_arm_group.setPlanningTime(45.0);
+
   left_arm_group.setNamedTarget("left_normal");
+  
   group.setNamedTarget("right_normal");
   left_arm_group.move();
   group.move();
+  //group.go();
+
   moveit_msgs::CollisionObject co;
   co.header.stamp = ros::Time::now();
   co.header.frame_id = "base_link";
