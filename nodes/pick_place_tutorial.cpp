@@ -150,16 +150,16 @@ int main(int argc, char **argv)
 
   ros::WallDuration(1.0).sleep();
 
-  moveit::planning_interface::MoveGroup group("right_arm");
-  moveit::planning_interface::MoveGroup left_arm_group("left_arm");
-  group.setPlanningTime(45.0);
-  left_arm_group.setPlanningTime(45.0);
+  //moveit::planning_interface::MoveGroup group("right_arm");
+  //moveit::planning_interface::MoveGroup left_arm_group("left_arm");
+  //group.setPlanningTime(45.0);
+  //left_arm_group.setPlanningTime(45.0);
 
-  left_arm_group.setNamedTarget("left_normal");
+  //left_arm_group.setNamedTarget("left_normal");
   
-  group.setNamedTarget("right_normal");
-  left_arm_group.move();
-  group.move();
+  //group.setNamedTarget("right_normal");
+  //left_arm_group.move();
+
   //group.go();
 
   moveit_msgs::CollisionObject co;
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
   co.primitives[0].dimensions[shape_msgs::SolidPrimitive::BOX_X] = 0.5;
   co.primitives[0].dimensions[shape_msgs::SolidPrimitive::BOX_Y] = 1.5;
   co.primitives[0].dimensions[shape_msgs::SolidPrimitive::BOX_Z] = 0.35;
-  co.primitive_poses[0].position.x = 0.7;
+  co.primitive_poses[0].position.x = 0.725;
   co.primitive_poses[0].position.y = -0.2;
   co.primitive_poses[0].position.z = 0.175;
   pub_co.publish(co);
@@ -215,22 +215,22 @@ int main(int argc, char **argv)
   
   co.operation = moveit_msgs::CollisionObject::ADD;
   co.primitives[0].dimensions[shape_msgs::SolidPrimitive::BOX_X] = 0.15;
-  co.primitives[0].dimensions[shape_msgs::SolidPrimitive::BOX_Y] = 0.1;
+  co.primitives[0].dimensions[shape_msgs::SolidPrimitive::BOX_Y] = 0.06;
   co.primitives[0].dimensions[shape_msgs::SolidPrimitive::BOX_Z] = 0.3;
 
-  co.primitive_poses[0].position.x = 0.6;
-  co.primitive_poses[0].position.y = -0.15;
+  co.primitive_poses[0].position.x = 0.7;
+  co.primitive_poses[0].position.y = 0;
   co.primitive_poses[0].position.z = 0.5;
   pub_co.publish(co);
 
   // wait a bit for ros things to initialize
   ros::WallDuration(1.0).sleep();
 
-  pick(group);
+  //pick(group);
 
   ros::WallDuration(1.0).sleep();
 
-  place(group);
+  //place(group);
 
   ros::waitForShutdown();
   return 0;
