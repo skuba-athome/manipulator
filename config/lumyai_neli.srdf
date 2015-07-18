@@ -72,6 +72,60 @@
         <joint name="right_wrist_3_joint" value="0" />
     </group_state>
 
+    <group_state name="right_pregrasp" group="right_arm">
+        <joint name="right_elbow_joint" value="0.2" />
+        <joint name="right_shoulder_1_joint" value="-0.81" />
+        <joint name="right_shoulder_2_joint" value="0.75" />
+        <joint name="right_wrist_1_joint" value="-0.53" />
+        <joint name="right_wrist_2_joint" value="1.21" />
+        <joint name="right_wrist_3_joint" value="0.80" />
+    </group_state>
+
+    <group_state name="right_init_picking" group="right_arm">
+        <joint name="right_elbow_joint" value="0.2" />
+        <joint name="right_shoulder_1_joint" value="0.59" />
+        <joint name="right_shoulder_2_joint" value="0.00" />
+        <joint name="right_wrist_1_joint" value="0.00" />
+        <joint name="right_wrist_2_joint" value="-0.36" />
+        <joint name="right_wrist_3_joint" value="0.00" />
+    </group_state>
+
+    <group_state name="right_wip_prepare" group="right_arm">
+        <joint name="right_elbow_joint" value="-0.63" />
+        <joint name="right_shoulder_1_joint" value="-1.38" />
+        <joint name="right_shoulder_2_joint" value="1.05" />
+        <joint name="right_wrist_1_joint" value="-0.159" />
+        <joint name="right_wrist_2_joint" value="0.89" />
+        <joint name="right_wrist_3_joint" value="0.31" />
+    </group_state>
+
+    <group_state name="right_wip_1" group="right_arm">
+        <joint name="right_elbow_joint" value="-1.09" />
+        <joint name="right_shoulder_1_joint" value="-1.303" />
+        <joint name="right_shoulder_2_joint" value="0.86" />
+        <joint name="right_wrist_1_joint" value="1.92" />
+        <joint name="right_wrist_2_joint" value="0.32" />
+        <joint name="right_wrist_3_joint" value="-0.97" />
+    </group_state>
+
+    <group_state name="right_wip_2" group="right_arm">
+        <joint name="right_elbow_joint" value="-1.09" />
+        <joint name="right_shoulder_1_joint" value="-1.303" />
+        <joint name="right_shoulder_2_joint" value="0.86" />
+        <joint name="right_wrist_1_joint" value="1.92" />
+        <joint name="right_wrist_2_joint" value="0.32" />
+        <joint name="right_wrist_3_joint" value="-0.57" />
+    </group_state>
+
+    <group_state name="right_wip_retreat" group="right_arm">
+        <joint name="right_elbow_joint" value="-0.61" />
+        <joint name="right_shoulder_1_joint" value="-1.50" />
+        <joint name="right_shoulder_2_joint" value="1.217" />
+        <joint name="right_wrist_1_joint" value="-0.59" />
+        <joint name="right_wrist_2_joint" value="0.89" />
+        <joint name="right_wrist_3_joint" value="1.55" />
+    </group_state>
+
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="right_eef" parent_link="right_wrist_3_Link" group="right_gripper" />
     <end_effector name="left_eef" parent_link="left_wrist_3_Link" group="left_gripper" />
