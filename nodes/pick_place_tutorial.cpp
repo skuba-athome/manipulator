@@ -49,9 +49,9 @@ void pick(moveit::planning_interface::MoveGroup &group)
 
   geometry_msgs::PoseStamped p;
   p.header.frame_id = "base_link";
-  p.pose.position.x = 0.32;
+  p.pose.position.x = 0.6;
   p.pose.position.y = -0.15;
-  p.pose.position.z = 0.5;
+  p.pose.position.z = 0.6;
   p.pose.orientation.x = 0;
   p.pose.orientation.y = 0;
   p.pose.orientation.z = 0;
