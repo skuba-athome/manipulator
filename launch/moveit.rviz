@@ -8,6 +8,9 @@ Panels:
         - /MotionPlanning1
         - /MotionPlanning1/Planning Request1
         - /MotionPlanning1/Planned Path1
+        - /TF1
+        - /TF1/Frames1
+        - /PointCloud21
       Splitter Ratio: 0.74256
     Tree Height: 579
   - Class: rviz/Help
@@ -84,6 +87,10 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          left_mani_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           left_shoulder_1_Link:
             Alpha: 1
             Show Axes: false
@@ -129,6 +136,10 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          right_mani_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           right_shoulder_1_Link:
             Alpha: 1
             Show Axes: false
@@ -236,6 +247,10 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          left_mani_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           left_shoulder_1_Link:
             Alpha: 1
             Show Axes: false
@@ -281,6 +296,10 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          right_mani_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
           right_shoulder_1_Link:
             Alpha: 1
             Show Axes: false
@@ -324,7 +343,7 @@ Visualization Manager:
       Enabled: false
       Frame Timeout: 15
       Frames:
-        All Enabled: true
+        All Enabled: false
       Marker Scale: 1
       Name: TF
       Show Arrows: true
@@ -334,10 +353,39 @@ Visualization Manager:
         {}
       Update Interval: 0
       Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.01
+      Style: Flat Squares
+      Topic: /camera/depth_registered/points
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: odom_combined
+    Fixed Frame: base_link
     Frame Rate: 30
   Name: root
   Tools:
@@ -345,26 +393,29 @@ Visualization Manager:
       Hide Inactive Objects: true
     - Class: rviz/MoveCamera
     - Class: rviz/Select
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
   Value: true
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 2.2495
+      Distance: 2.20564
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.469266
-        Y: -0.0312344
-        Z: -1.3262e-06
+        X: 0.663188
+        Y: -0.209992
+        Z: -3.57628e-07
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.359796
+      Pitch: 0.104797
       Target Frame: base_link
       Value: XYOrbit (rviz)
-      Yaw: 2.60998
+      Yaw: 5.20858
     Saved: ~
 Window Geometry:
   Displays:
@@ -376,9 +427,9 @@ Window Geometry:
   Hide Right Dock: false
   Motion Planning:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000037e000002a2fc0200000004fb0000000800480065006c00700000000342000000bb0000007600fffffffb0000000a0056006900650077007300000003b0000000b0000000b000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fc00000028000002a20000019d0100001dfa000000000100000002fb000000100044006900730070006c0061007900730100000000ffffffff0000010f00fffffffb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000000000003460000034600ffffff00000191000002a200000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000001000000000000037e000002a2fc0200000004fb0000000800480065006c00700000000342000000bb0000007600fffffffb0000000a0056006900650077007300000003b0000000b0000000b000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fc00000028000002a2000001920100001dfa000000000100000002fb000000100044006900730070006c0061007900730100000000ffffffff0000010f00fffffffb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000000000003460000034600ffffff00000199000002a200000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
-  Width: 1301
-  X: 57
-  Y: -4
+  Width: 1309
+  X: 42
+  Y: 24
