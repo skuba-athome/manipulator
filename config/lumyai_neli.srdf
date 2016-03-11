@@ -235,8 +235,8 @@
     </group_state>
 
     <group_state name="right_picking_prepare" group="right_arm">
-        <joint name="right_elbow_joint" value="-0.2" />
-        <joint name="right_shoulder_1_joint" value="-1.4" />
+        <joint name="right_elbow_joint" value="0.2" />
+        <joint name="right_shoulder_1_joint" value="-1.1" />
         <joint name="right_shoulder_2_joint" value="0.00" />
         <joint name="right_wrist_1_joint" value="0.00" />
         <joint name="right_wrist_2_joint" value="0.9" />
