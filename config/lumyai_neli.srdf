@@ -291,7 +291,7 @@
     <group_state name="turn_arm_right" group="right_arm">
         <joint name="right_elbow_joint" value="0.2" />
         <joint name="right_shoulder_1_joint" value="-1.0" />
-        <joint name="right_shoulder_2_joint" value="-0.15" />
+        <joint name="right_shoulder_2_joint" value="-1.5" />
         <joint name="right_wrist_1_joint" value="0.00" />
         <joint name="right_wrist_2_joint" value="0.0" />
         <joint name="right_wrist_3_joint" value="0.00" />
