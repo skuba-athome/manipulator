@@ -7,6 +7,7 @@ find_package(catkin REQUIRED
 	roscpp
 	sensor_msgs
   	shape_msgs
+  	shape_tools
 	geometry_msgs
 	tf
 	moveit_core 
