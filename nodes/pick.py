@@ -42,7 +42,7 @@ from dynamixel_controllers.srv import SetTorqueLimit
 from moveit_commander import RobotCommander, PlanningSceneInterface, roscpp_initialize, roscpp_shutdown
 from geometry_msgs.msg import PoseStamped
 
-GRIPPER_EFFORT = 0.5
+GRIPPER_EFFORT = 0.8
 
 
 class GripperActionController:
@@ -105,8 +105,8 @@ if __name__=='__main__':
     #scene.add_box("pole", p, (0.3, 0.05, 1.0))
 
     p.pose.position.y = -0.2
-    p.pose.position.z = 0.20
-    scene.add_box("table", p, (0.5, 0.9, 0.35))
+    p.pose.position.z = 0.25
+    scene.add_box("table", p, (0.33, 0.9, 0.5))
     
     p.pose.position.x = 0.66
     p.pose.position.y = -0.18
@@ -122,6 +122,7 @@ if __name__=='__main__':
     # pick an object
     robot.right_arm.pick("part1")
     rospy.sleep(1)
+
     gripper.gripper_close()
     rospy.sleep(1)
     # robot.right_arm.set_named_target("right_normal") 
