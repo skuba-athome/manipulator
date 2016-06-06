@@ -86,10 +86,10 @@ if __name__=='__main__':
 
     gripper.gripper_close()
 
-    robot.right_arm.set_named_target("right_normal") 
-    robot.right_arm.go()
+    # robot.right_arm.set_named_target("right_normal") 
+    # robot.right_arm.go()
 
-    gripper.gripper_open()
+    # gripper.gripper_open()
     #robot.left_arm.set_named_target("left_normal") 
     #robot.left_arm.go()
     rospy.sleep(1)
@@ -110,7 +110,7 @@ if __name__=='__main__':
     
     p.pose.position.x = 0.66
     p.pose.position.y = -0.18
-    p.pose.position.z = 0.65
+    p.pose.position.z = 0.6
     scene.add_box("part1", p, (0.05, 0.05, 0.2 ))
 
     # p.pose.position.x = 0.6
@@ -122,8 +122,7 @@ if __name__=='__main__':
     # pick an object
     robot.right_arm.pick("part1")
     rospy.sleep(1)
-
-    gripper.gripper_close()
+    gripper.gripper_open()
     rospy.sleep(1)
     # robot.right_arm.set_named_target("right_normal") 
     # robot.right_arm.go()
