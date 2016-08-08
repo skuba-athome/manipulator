@@ -5,4 +5,4 @@ moveit_setup_assistant_config:
   SRDF:
     relative_path: config/lumyai_neli.srdf
   CONFIG:
-    generated_timestamp: 1433170906
+    generated_timestamp: 1470655839

@@ -42,7 +42,7 @@ from dynamixel_controllers.srv import SetTorqueLimit
 from moveit_commander import RobotCommander, PlanningSceneInterface, roscpp_initialize, roscpp_shutdown
 from geometry_msgs.msg import PoseStamped
 
-GRIPPER_EFFORT = 0.8
+GRIPPER_EFFORT = 0.4
 
 
 class GripperActionController:
@@ -50,20 +50,22 @@ class GripperActionController:
         # gripper_side should be right_gripper or left_gripper
         self.gripper_client = actionlib.SimpleActionClient('/dynamixel/' + gripper_side + '_controller/gripper_action',
                                                            GripperCommandAction)
-        self.set_torque_limit = rospy.ServiceProxy('/dynamixel/right_gripper_joint_controller/set_torque_limit',
+        self.set_torque_limit = rospy.ServiceProxy('/dynamixel/' + gripper_side + '_joint_controller/set_torque_limit',
                                                    SetTorqueLimit)
 
+        self.action_open = GripperCommandGoal()
+        self.action_open.command.position = 0.8
+
+        self.action_close = GripperCommandGoal()
+        self.action_close.command.position = 0.0
+
     def gripper_open(self, gripper_effort=GRIPPER_EFFORT):
-        action_open = GripperCommandGoal()
-        action_open.command.position = 0.8
         self.set_torque_limit(gripper_effort)
-        self.gripper_client.send_goal(action_open)
+        self.gripper_client.send_goal(self.action_close)
 
     def gripper_close(self, gripper_effort=GRIPPER_EFFORT):
-        action_close = GripperCommandGoal()
-        action_close.command.position = 0.0
         self.set_torque_limit(gripper_effort)
-        self.gripper_client.send_goal(action_close)
+        self.gripper_client.send_goal(self.action_open)
 
 
 if __name__=='__main__':
@@ -73,66 +75,28 @@ if __name__=='__main__':
     
     scene = PlanningSceneInterface()
     robot = RobotCommander()
-    gripper = GripperActionController("right_gripper")
+
     robot.right_arm.set_planning_time(100)
     robot.left_arm.set_planning_time(100)
-    rospy.sleep(1)
 
-    # clean the scene
-    scene.remove_world_object("pole")
-    scene.remove_world_object("table")
-    scene.remove_world_object("part1")
-    rospy.sleep(1)
-
-    gripper.gripper_close()
-
-    robot.right_arm.set_named_target("right_normal") 
-    robot.right_arm.go()
-
-    gripper.gripper_open()
-    #robot.left_arm.set_named_target("left_normal") 
-    #robot.left_arm.go()
-    rospy.sleep(1)
-
-    # publish a demo scene
     p = PoseStamped()
     p.header.frame_id = robot.get_planning_frame()
     print robot.get_planning_frame()
-    p.pose.position.x = 0.8
-    p.pose.position.y = -0.15
-    p.pose.position.z = 0.85
-    p.pose.orientation.w = 1.0
-    #scene.add_box("pole", p, (0.3, 0.05, 1.0))
-
-    p.pose.position.y = -0.2
-    p.pose.position.z = 0.25
-    scene.add_box("table", p, (0.33, 0.9, 0.5))
-    
-    p.pose.position.x = 0.66
-    p.pose.position.y = -0.18
-    p.pose.position.z = 0.65
+   
+    p.pose.position.x = 0.44
+    p.pose.position.y = -0.02
+    p.pose.position.z = 0.46
     scene.add_box("part1", p, (0.05, 0.05, 0.2 ))
 
     # p.pose.position.x = 0.6
     # p.pose.position.y = -0.29
     # p.pose.position.z = 0.45
     # scene.add_box("part2", p, (0.075, 0.05, 0.2))
-    rospy.sleep(1)
 
+    rospy.sleep(1)
     # pick an object
-    robot.right_arm.pick("part1")
+    robot.left_arm.pick("part1")
     rospy.sleep(1)
-
-    gripper.gripper_close()
-    rospy.sleep(1)
-    # robot.right_arm.set_named_target("right_normal") 
-    # robot.right_arm.go()
-    scene.remove_world_object("part1")
-    robot.right_arm.set_named_target("right_pregrasp") 
-    robot.right_arm.go()
-    # robot.right_arm.pick("part2")
-    #robot.right_arm.set_named_target("right_normal") 
-    #robot.right_arm.go()
 
     rospy.spin()
     roscpp_shutdown()

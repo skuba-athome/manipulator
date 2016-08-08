@@ -8,15 +8,16 @@
   <!-- GDB Debug Option -->
   <arg name="debug" default="false" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
-  <arg     if="$(arg debug)" name="launch_prefix" value="gdb --ex run --args" />
+  <arg     if="$(arg debug)" name="launch_prefix"
+	   value="gdb -x $(find manipulator)/launch/gdb_settings.gdb --ex run --args" />
 
   <!-- Verbose Mode Option -->
-  <arg name="info" default="$(arg debug)" />  
+  <arg name="info" default="$(arg debug)" />
   <arg unless="$(arg info)" name="command_args" value="" />
   <arg     if="$(arg info)" name="command_args" value="--debug" />
 
   <!-- move_group settings -->
-  <arg name="allow_trajectory_execution" default="true"/> 
+  <arg name="allow_trajectory_execution" default="true"/>
   <arg name="fake_execution" default="false"/>
   <arg name="max_safe_path_cost" default="1"/>
   <arg name="jiggle_fraction" default="0.05" />
@@ -35,13 +36,12 @@
   </include>
 
   <!-- Sensors Functionality -->
- <!--<include ns="move_group" file="$(find manipulator)/launch/sensor_manager.launch.xml" if="$(arg allow_trajectory_execution)">
-    <arg name="moveit_sensor_manager" value="lumyai_neli" /> 
-  </include>-->
+  <include ns="move_group" file="$(find manipulator)/launch/sensor_manager.launch.xml" if="$(arg allow_trajectory_execution)">
+    <arg name="moveit_sensor_manager" value="lumyai_neli" />
+  </include>
 
   <!-- Start the actual move_group node/action server -->
   <node name="move_group" launch-prefix="$(arg launch_prefix)" pkg="moveit_ros_move_group" type="move_group" respawn="false" output="screen" args="$(arg command_args)">
-    <remap from="joint_states" to="$(arg joint_state_remap_topic)" if="$(arg remap_joint_state_topic)"/>
     <!-- Set the display variable, in case OpenGL code is used internally -->
     <env name="DISPLAY" value="$(optenv DISPLAY :0)" />
 
@@ -59,6 +59,7 @@
 				      move_group/MoveGroupQueryPlannersService
 				      move_group/MoveGroupStateValidationService
 				      move_group/MoveGroupGetPlanningSceneService
+				      move_group/ClearOctomapService
 				      " />
 
     <!-- Publish the planning scene of the physical robot so that rviz plugin can know actual robot -->
@@ -67,5 +68,5 @@
     <param name="planning_scene_monitor/publish_state_updates" value="$(arg publish_monitored_planning_scene)" />
     <param name="planning_scene_monitor/publish_transforms_updates" value="$(arg publish_monitored_planning_scene)" />
   </node>
-  
+
 </launch>

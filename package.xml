@@ -1,47 +1,29 @@
-<?xml version="1.0"?>
 <package>
+
   <name>manipulator</name>
-  <version>0.0.0</version>
-  <description>The manipulator package</description>
-  <maintainer email="nicole@todo.todo">nicole</maintainer>
+  <version>0.2.0</version>
+  <description>
+     An automatically generated package with all the configuration and launch files for using the lumyai_neli with the MoveIt Motion Planning Framework
+  </description>
+  <author email="assistant@moveit.ros.org">MoveIt Setup Assistant</author>
+  <maintainer email="assistant@moveit.ros.org">MoveIt Setup Assistant</maintainer>
+
   <license>BSD</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>rospy</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>shape_msgs</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>dynamixel_msgs</build_depend>
-  <build_depend>moveit_msgs</build_depend>
-  <build_depend>message_generation</build_depend>
-  <build_depend>moveit_core</build_depend>
-  <build_depend>moveit_ros_planning</build_depend>
-  <build_depend>shape_tools</build_depend>
-  <build_depend>tf</build_depend>
+  <url type="website">http://moveit.ros.org/</url>
+  <url type="bugtracker">https://github.com/ros-planning/moveit_setup_assistant/issues</url>
+  <url type="repository">https://github.com/ros-planning/moveit_setup_assistant</url>
 
-  <run_depend>rospy</run_depend>
-  <run_depend>roscpp</run_depend>
-  <run_depend>std_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>dynamixel_msgs</run_depend>
-  <run_depend>message_runtime</run_depend>
   <run_depend>moveit_ros_move_group</run_depend>
   <run_depend>moveit_planners_ompl</run_depend>
   <run_depend>moveit_ros_visualization</run_depend>
   <run_depend>joint_state_publisher</run_depend>
   <run_depend>robot_state_publisher</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>shape_msgs</run_depend>
-  <run_depend>std_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>moveit_msgs</run_depend>
-  <run_depend>tf</run_depend>
-  <run_depend>moveit_core</run_depend>
-  <run_depend>moveit_ros_planning</run_depend>
   <run_depend>xacro</run_depend>
-  <run_depend>shape_tools</run_depend>
+  <build_depend>lumyai_descriptions</build_depend>
+  <run_depend>lumyai_descriptions</run_depend>
 
 
+  <buildtool_depend>catkin</buildtool_depend>
+  
 </package>
